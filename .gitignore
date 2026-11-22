@@ -1,0 +1,5 @@
+node_modules/
+*.tgz
+tokenrings-*.html
+!docs/demo.html
+.DS_Store

@@ -1,0 +1,43 @@
+{
+  "name": "tokenrings",
+  "version": "0.1.0",
+  "description": "One command to turn your local AI coding token usage (Claude Code, Codex, Gemini/Antigravity, Hermes, Cursor, OpenCode, 60+ tools) into a GitHub-style contribution graph, flat or 3D, as a single HTML file.",
+  "type": "module",
+  "bin": {
+    "tokenrings": "bin/tokenrings.mjs"
+  },
+  "files": [
+    "bin",
+    "template.html",
+    "llms.txt"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "3d",
+    "ai-usage",
+    "antigravity",
+    "ccusage",
+    "claude",
+    "claude-code",
+    "codex",
+    "contribution-graph",
+    "cursor",
+    "gemini-cli",
+    "github-contributions",
+    "heatmap",
+    "token",
+    "token-usage",
+    "tokscale",
+    "usage",
+    "windows",
+    "wrapped",
+    "year-in-review"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "test": "node test/check.mjs",
+    "demo": "node bin/tokenrings.mjs --demo"
+  }
+}

@@ -1,0 +1,17 @@
+# tokenrings
+
+> One command (`npx tokenrings`) turns local AI coding token usage into a GitHub-style contribution graph, flat or 3D, saved as a single HTML file. Reads Claude Code, Codex, Gemini CLI, Antigravity, Hermes Agent, Cursor, OpenCode, WorkBuddy, CodeBuddy and 60+ other tools through tokscale. Nothing is uploaded. macOS, Linux, Windows; Node 18+.
+
+## Use
+- `npx tokenrings`: scan this year, write tokenrings-<year>.html, open it
+- `npx tokenrings --demo`: sample data, no logs read
+- `npx tokenrings --year 2025 --no-open -o usage.html`
+
+## Facts
+- Claude Code deletes conversation logs older than 30 days by default; ccusage, tokscale, tokenviz and tokenrings all read those logs, so deleted days cannot be recovered. Set "cleanupPeriodDays": 36500 in ~/.claude/settings.json. tokenrings also keeps daily totals in ~/.tokenrings/ledger.json from the first run on.
+- Codex logs carry cumulative counters and resumed sessions replay earlier events, so tools disagree on Codex totals; tokenrings uses tokscale's counting.
+- Cache reads are usually over 90% of total tokens, so the page also shows totals without cache reads.
+
+## Links
+- README: README.md
+- Data layer: https://github.com/junhoyeo/tokscale

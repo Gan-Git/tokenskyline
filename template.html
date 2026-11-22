@@ -1,0 +1,447 @@
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AI Token 年轮</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* 版式：一张仪表式的年度账页——顶部大数 + 份额条，中间一张合成网格（平面/立体），下面五家各一行小图，最后脚注说清口径 */
+:root{
+  --bg:#F1F3F0; --ink:#141C22; --muted:#5B676E; --rule:#CFD5D2; --empty:#E1E5E1; --hl:#141C22; --pl-t:#E6EAE7; --pl-l:#D7DDDA; --pl-r:#C7CECB;
+  --c-claude:#C0522B; --c-codex:#1D6E77; --c-agy:#2E5BC8; --c-hermes:#B98A10; --c-workbuddy:#617F27;
+  --f-display:"Familjen Grotesk","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  --f-body:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+  --f-mono:"IBM Plex Mono","SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1418; --ink:#E4E9E6; --muted:#8A979D; --rule:#263036; --empty:#1A2227; --hl:#E4E9E6; --pl-t:#161D21; --pl-l:#1E272C; --pl-r:#11171A;
+  --c-claude:#E5744A; --c-codex:#3BB0B6; --c-agy:#6B90F2; --c-hermes:#E3B841; --c-workbuddy:#9BBE52; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1418; --ink:#E4E9E6; --muted:#8A979D; --rule:#263036; --empty:#1A2227; --hl:#E4E9E6; --pl-t:#161D21; --pl-l:#1E272C; --pl-r:#11171A;
+  --c-claude:#E5744A; --c-codex:#3BB0B6; --c-agy:#6B90F2; --c-hermes:#E3B841; --c-workbuddy:#9BBE52; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5}
+.wrap{max-width:1120px;margin:0 auto;padding-block:40px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:40px}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}
+.cmd{margin-left:auto;font-family:var(--f-mono);font-size:12px;letter-spacing:0;text-transform:none;color:var(--ink);border:1px solid var(--ink);padding:1px 7px}
+.demo{color:var(--bg);background:var(--c-claude,#C0522B);padding:0 6px;letter-spacing:.04em}
+.cmd::before{content:"$ ";color:var(--muted)}
+h1,h2{font-family:var(--f-display);font-weight:700;margin:0;text-wrap:balance}
+
+/* 顶部 */
+.head{display:grid;gap:18px}
+.hero{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 40px;justify-content:space-between}
+.big{font-family:var(--f-display);font-weight:700;font-size:clamp(52px,10vw,104px);line-height:.9;letter-spacing:-.03em}
+.big small{font-size:.32em;letter-spacing:0;font-weight:500;margin-left:.25em;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(4,auto);gap:4px 28px}
+.kpi{display:grid;gap:2px}
+.kpi b{font-family:var(--f-mono);font-weight:500;font-size:20px;font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px;color:var(--muted)}
+.kpi .sub{font-family:var(--f-mono);font-size:11px;font-variant-numeric:tabular-nums;border-top:1px solid var(--rule);padding-top:3px;margin-top:2px}
+.share{display:flex;height:10px;width:100%;background:var(--empty)}
+.share i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 22px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:9px;height:9px;display:inline-block}
+
+/* 控件 */
+.bar{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;border-top:1px solid var(--ink);border-bottom:1px solid var(--rule);padding-block:10px}
+.seg{display:inline-flex;border:1px solid var(--rule)}
+.seg button,.tool{font:inherit;font-size:12.5px;background:none;color:var(--muted);border:0;padding:5px 11px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--rule)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.tools{display:flex;flex-wrap:wrap;gap:2px}
+.tool{display:inline-flex;align-items:center;gap:7px;padding:5px 9px;border:1px solid transparent}
+.tool i{width:10px;height:10px;display:inline-block;border:1.5px solid currentColor}
+.tool[aria-pressed="true"]{color:var(--ink)}
+.tool[aria-pressed="true"] i{border-color:transparent}
+.tool[aria-pressed="false"] i{background:none!important}
+button:focus-visible{outline:2px solid var(--hl);outline-offset:1px}
+.grow{flex:1}
+
+/* 主图 */
+.main{display:grid;gap:10px}
+.scroll{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
+#cv3{display:block}
+.scale{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);justify-content:flex-end}
+.scale i{width:11px;height:11px;display:inline-block}
+.note{font-size:12px;color:var(--muted)}
+
+/* 分家 */
+.rows{display:grid;gap:0}
+.row{display:grid;grid-template-columns:200px minmax(0,1fr);gap:20px;align-items:start;padding-block:16px;border-top:1px solid var(--rule)}
+.row:last-child{border-bottom:1px solid var(--rule)}
+.row{cursor:pointer}
+.row.off{opacity:.38}
+.row:hover .meta h3{text-decoration:underline;text-underline-offset:3px}
+.cap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
+.cap h2{font-size:17px}
+.meta{display:grid;gap:3px}
+.meta h3{margin:0;font-family:var(--f-display);font-size:18px;font-weight:700;display:flex;align-items:center;gap:8px}
+.meta h3 i{width:10px;height:10px;display:inline-block}
+.meta .t{font-family:var(--f-mono);font-size:15px}
+.meta .s{font-size:12px;color:var(--muted)}
+@media (max-width:720px){.row{grid-template-columns:minmax(0,1fr);gap:8px}.kpis{grid-template-columns:repeat(2,auto)}}
+
+.foot{font-size:12px;color:var(--muted);display:grid;gap:6px;max-width:72ch}
+.foot b{color:var(--ink);font-weight:500}
+.foot .gen{display:flex;align-items:baseline;gap:10px;margin-top:6px}
+.foot .gen .cmd{margin-left:0;font-size:14px;padding:3px 10px}
+
+#tip{position:fixed;z-index:20;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;padding:8px 10px;min-width:170px;display:none}
+#tip .d{font-family:var(--f-mono);margin-bottom:4px}
+#tip .r{display:flex;justify-content:space-between;gap:14px;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+#tip .r i{width:8px;height:8px;display:inline-block;margin-right:6px}
+#tip .m{opacity:.7;font-size:11px;margin-top:4px}
+svg text{fill:var(--muted);font-family:var(--f-mono);font-size:10px}
+@media (prefers-reduced-motion:no-preference){.share i{transition:width .3s}}
+</style>
+
+<div class="wrap">
+  <header class="head">
+    <div class="eyebrow"><span id="yr"></span> · AI token 年轮 · <span id="upd"></span><span class="cmd">npx tokenrings</span></div>
+    <div class="hero">
+      <div>
+        <div class="big" id="bigNum">—</div>
+        <div class="note" id="bigSub"></div>
+      </div>
+      <div class="kpis" id="kpis"></div>
+    </div>
+    <div class="share" id="share"></div>
+    <div class="legend" id="shareLegend"></div>
+  </header>
+
+  <section class="main">
+    <div class="cap"><h2>合在一起看</h2><span class="eyebrow">图 1 · 各家叠加</span></div>
+    <div class="bar">
+      <div class="seg" role="group" aria-label="视图">
+        <button id="v2d" aria-pressed="true">平面</button><button id="v3d" aria-pressed="false">立体</button>
+      </div>
+      <div class="seg" role="group" aria-label="口径">
+        <button id="mTotal" aria-pressed="true">全部 token</button><button id="mNoCache" aria-pressed="false">不含缓存</button><button id="mCost" aria-pressed="false">估算费用</button>
+      </div>
+      <div class="seg" role="group" aria-label="时间范围">
+        <button id="rData" aria-pressed="true">有记录以来</button><button id="rYear" aria-pressed="false">全年</button>
+      </div>
+      <div class="grow"></div>
+      <div class="tools" id="tools"></div>
+    </div>
+    <div class="scroll" id="mainScroll"><div id="w2d"><svg id="grid2d"></svg></div><canvas id="cv3" hidden></canvas></div>
+    <div class="scale" id="scale"></div>
+  </section>
+
+  <section class="main">
+    <div class="cap"><h2>分开看</h2><span class="note">每家按自己的分位上色 · 点一行可在图 1 里加上或去掉</span></div>
+    <div class="rows" id="rows" aria-label="分家明细"></div>
+  </section>
+
+  <footer class="foot" id="foot"></footer>
+</div>
+<div id="tip"></div>
+
+<script src="data/data.js"></script>
+<script>
+(function(){
+const D = window.TOKEN_DATA;
+const NAMES={claude:"Claude",codex:"Codex",agy:"agy",antigravity:"Antigravity",hermes:"Hermes",workbuddy:"WorkBuddy",codebuddy:"CodeBuddy",
+  opencode:"OpenCode",cursor:"Cursor",gemini:"Gemini CLI",copilot:"Copilot",amp:"Amp",kimi:"Kimi",qwen:"Qwen",trae:"Trae",cline:"Cline",
+  roocode:"Roo Code",kilocode:"Kilo",kilo:"Kilo CLI",goose:"Goose",zed:"Zed",kiro:"Kiro",droid:"Droid",openclaw:"OpenClaw",dsh:"DSH",micode:"MiMo Code",crush:"Crush",warp:"Warp",pi:"Pi"};
+const TOOLS=(D.tools||Object.keys(Object.assign({},...Object.values(D.days))))
+  .filter(k=>Object.values(D.days).some(x=>x[k])).map(k=>({k,n:(D.names&&D.names[k])||NAMES[k]||k}));
+const TN = Object.fromEntries(TOOLS.map(t=>[t.k,t.n]));
+const S = {view:"2d", metric:"total", range:"data", on:new Set(TOOLS.map(t=>t.k))};
+const METRIC = {
+  total:  {lab:"全部 token", f:a=>a[0]+a[1]+a[2]+a[3]},
+  nocache:{lab:"不含缓存",   f:a=>a[0]+a[1]+a[3]},
+  cost:   {lab:"估算费用",   f:a=>a[4]}
+};
+const $ = id=>document.getElementById(id);
+
+// ---------- 工具 ----------
+const pad=n=>String(n).padStart(2,"0");
+const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const mondayOf=d=>addDays(d,-((d.getDay()+6)%7));
+function fmt(n){
+  if(S.metric==="cost") return "$"+(n>=1000?Math.round(n).toLocaleString("en-US"):n.toFixed(n<10?2:0));
+  return fmtTok(n);
+}
+function fmtTok(n){
+  if(n>=1e8) return (n/1e8).toFixed(n>=1e10?0:1)+" 亿";
+  if(n>=1e4) return Math.round(n/1e4).toLocaleString("en-US")+" 万";
+  return Math.round(n).toLocaleString("en-US");
+}
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function hex2rgb(h){h=h.replace("#","");return [0,2,4].map(i=>parseInt(h.substr(i,2),16))}
+function mix(a,b,t){const A=hex2rgb(a),B=hex2rgb(b);return "rgb("+A.map((x,i)=>Math.round(x*t+B[i]*(1-t))).join(",")+")"}
+function shade(a,k){const A=hex2rgb(a);return "rgb("+A.map(x=>Math.round(x*k)).join(",")+")"}
+let C={};
+const PAL={light:["#C0522B","#1D6E77","#2E5BC8","#B98A10","#617F27","#A33B4E","#4E5C69","#8A5A2B","#2B7A4B","#B5651D"],
+            dark: ["#E5744A","#3BB0B6","#6B90F2","#E3B841","#9BBE52","#E0708A","#9AA8B6","#C8925A","#5CC48A","#E8954F"]};
+const FIXED={claude:0,codex:1,agy:2,antigravity:2,gemini:2,hermes:3,workbuddy:4,codebuddy:4};
+const SLOT={};(()=>{const used=new Set();TOOLS.forEach(t=>{if(t.k in FIXED&&!used.has(FIXED[t.k])){SLOT[t.k]=FIXED[t.k];used.add(FIXED[t.k])}});
+  let n=0;TOOLS.forEach(t=>{if(t.k in SLOT)return;while(used.has(n%10)&&used.size<10)n++;SLOT[t.k]=n%10;used.add(n%10);n++})})();
+function isDark(){const a=document.documentElement.getAttribute("data-theme");return a?a==="dark":matchMedia("(prefers-color-scheme: dark)").matches}
+function readColors(){C={bg:css("--bg"),empty:css("--empty"),ink:css("--ink"),muted:css("--muted"),rule:css("--rule"),plT:css("--pl-t"),plL:css("--pl-l"),plR:css("--pl-r")};
+  const pal=PAL[isDark()?"dark":"light"];TOOLS.forEach(t=>{C[t.k]=pal[SLOT[t.k]];document.documentElement.style.setProperty("--c-"+t.k,C[t.k])})}
+
+// ---------- 数据视图 ----------
+const allDates = Object.keys(D.days).sort();
+const YEAR = +(D.year||allDates[allDates.length-1].slice(0,4));
+const firstDate = new Date(allDates[0]+"T00:00:00");
+const today = new Date(); today.setHours(0,0,0,0);
+function valOf(date,tool){const a=D.days[date]&&D.days[date][tool];return a?METRIC[S.metric].f(a):0}
+function dayParts(date,set){return TOOLS.filter(t=>set.has(t.k)).map(t=>[t.k,valOf(date,t.k)]).filter(p=>p[1]>0)}
+function rangeDates(){
+  let s,e;
+  if(S.range==="year"){s=mondayOf(new Date(YEAR,0,1));e=addDays(mondayOf(new Date(YEAR,11,31)),6)}
+  else{s=mondayOf(firstDate);e=addDays(mondayOf(today),6)}
+  const out=[];for(let d=new Date(s);d<=e;d=addDays(d,1))out.push(new Date(d));return out;
+}
+// 分位数分 5 档（缓存读会把线性刻度压扁）
+function levels(vals){
+  const v=vals.filter(x=>x>0).sort((a,b)=>a-b);
+  if(!v.length) return x=>0;
+  const q=p=>v[Math.min(v.length-1,Math.floor(p*v.length))];
+  const cut=[q(.2),q(.4),q(.6),q(.8)];
+  const fn=x=>x<=0?0:1+cut.filter(c=>x>c).length;   // 1..5
+  fn.cut=cut; return fn;
+}
+const LV=[0,.28,.46,.64,.82,1];
+
+// ---------- 顶部 ----------
+function renderHead(){
+  const on=S.on, f=METRIC[S.metric].f;
+  let tot=0,cost=0,active=0,best=["",0],perTool={};
+  TOOLS.forEach(t=>perTool[t.k]=0);
+  const actSet=new Set();
+  for(const d of allDates){
+    let dv=0;
+    for(const t of TOOLS){ if(!on.has(t.k))continue; const a=D.days[d][t.k]; if(!a)continue;
+      const v=f(a); perTool[t.k]+=v; dv+=v; cost+=a[4]; }
+    tot+=dv; if(dv>0){actSet.add(d)} if(dv>best[1])best=[d,dv];
+  }
+  // 最长连续
+  let longest=0,cur=0,prev=null,lsEnd="",curStart="",lsStart="";
+  for(const d of [...actSet].sort()){const dt=new Date(d+"T00:00:00");if(prev&&(dt-prev)===864e5)cur++;else{cur=1;curStart=d}
+    if(cur>longest){longest=cur;lsStart=curStart;lsEnd=d}prev=dt}
+  let tokAll=0,tokCache=0;for(const d of allDates)for(const k of on){const a=D.days[d][k];if(a){tokAll+=a[0]+a[1]+a[2]+a[3];tokCache+=a[2]}}
+  let bestLead="";if(best[0]){const dd=D.days[best[0]];bestLead=TN[[...on].filter(k=>dd[k]).sort((x,y)=>f(dd[y])-f(dd[x]))[0]]||""}
+  const md=x=>x?(+x.slice(5,7))+"."+(+x.slice(8)):"";
+  const big = S.metric==="cost" ? ["$"+Math.round(tot).toLocaleString("en-US"),"估算美元"] : (()=>{const s=fmtTok(tot).split(" ");return [s[0],(s[1]||"")+" token"]})();
+  $("bigNum").innerHTML=`${big[0]}<small>${big[1]}</small>`;
+  $("bigSub").textContent=`${METRIC[S.metric].lab} · ${[...on].map(k=>TN[k]).join(" + ")||"未选"}`;
+  const bd=best[0]?(+best[0].slice(5,7))+"月"+(+best[0].slice(8))+"日":"—";
+  $("kpis").innerHTML=[
+    S.metric==="cost"?[fmtTok(tokAll),"全部 token",`缓存读占 ${(tokCache/(tokAll||1)*100).toFixed(1)}%`]
+                     :["$"+Math.round(cost).toLocaleString("en-US"),"按官方价估算",`日均 $${Math.round(cost/(actSet.size||1))} · 缓存读占 ${(tokCache/(tokAll||1)*100).toFixed(1)}%`],
+    [actSet.size+" 天","有用量的日子",`${md(allDates[0])} 起有记录`],
+    [longest+" 天","最长连续",`${md(lsStart)} – ${md(lsEnd)}`],
+    [bd,"最猛一天",`${fmt(best[1])} · ${bestLead}主导`]
+  ].map(([b,s,t])=>`<div class="kpi"><b>${b}</b><span>${s}</span><span class="sub">${t}</span></div>`).join("");
+  const sum=Object.values(perTool).reduce((a,b)=>a+b,0)||1;
+  $("share").innerHTML=TOOLS.filter(t=>on.has(t.k)).map(t=>`<i style="width:${perTool[t.k]/sum*100}%;background:var(--c-${t.k})" title="${t.n}"></i>`).join("");
+  $("shareLegend").innerHTML=TOOLS.filter(t=>on.has(t.k)&&perTool[t.k]>0).sort((a,b)=>perTool[b.k]-perTool[a.k])
+    .map(t=>`<span><i style="background:var(--c-${t.k})"></i>${t.n} <b class="num" style="color:var(--ink);font-weight:500">${(perTool[t.k]/sum*100).toFixed(1)}%</b> <span class="num">${fmt(perTool[t.k])}</span></span>`).join("");
+}
+function sumTok(on){let s=0;for(const d of allDates)for(const k of on){const a=D.days[d][k];if(a)s+=a[0]+a[1]+a[2]+a[3]}return s}
+
+// ---------- 平面网格（SVG） ----------
+const WD=["一","","三","","五","","日"];
+function gridSVG(svg,dates,set,opt){
+  const weeks=Math.ceil(dates.length/7), labW=opt.labels?22:0, topH=opt.labels?16:0;
+  const avail=opt.width-labW;
+  const step=Math.max(opt.min,Math.min(opt.max,Math.floor(avail/weeks)));
+  const gap=Math.max(2,Math.round(step*.16)), cell=step-gap;
+  const W=labW+weeks*step, H=topH+7*step;
+  svg.setAttribute("width",W);svg.setAttribute("height",H);svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  const vals=dates.map(d=>dayParts(ymd(d),set).reduce((s,p)=>s+p[1],0));
+  const lv=levels(vals);
+  let h="";
+  if(opt.labels){
+    WD.forEach((w,i)=>{if(w)h+=`<text x="0" y="${topH+i*step+cell*.8}">${w}</text>`});
+    let lastM=-1,lastLX=-99;
+    dates.forEach((d,i)=>{if(i%7===0){const m=d.getMonth();const wk=i/7;
+      // 本周含当月 1 号才标
+      for(let j=0;j<7;j++){const dd=dates[i+j];if(dd&&(dd.getDate()===1||i===0)&&dd.getFullYear()===YEAR&&dd.getMonth()!==lastM){lastM=dd.getMonth();const lx=labW+wk*step;if(lx-lastLX>=26){h+=`<text x="${lx}" y="10">${dd.getMonth()+1}月</text>`;lastLX=lx}break}}
+    }});
+  }
+  dates.forEach((d,i)=>{
+    const x=labW+Math.floor(i/7)*step, y=topH+(i%7)*step, ds=ymd(d);
+    const future=d>today;
+    const parts=dayParts(ds,set), v=parts.reduce((s,p)=>s+p[1],0), L=lv(v);
+    if(!v){h+=`<rect x="${x}" y="${y}" width="${cell}" height="${cell}" fill="${future?"none":C.empty}" ${future?`stroke="${C.rule}" stroke-width="1"`:""} data-d="${ds}"/>`;return}
+    // 有用量：格子按各家占比自下而上分段着色，整体深浅按分位档
+    const t=LV[L]; let yy=y+cell;
+    h+=`<g data-d="${ds}">`;
+    parts.sort((a,b)=>TOOLS.findIndex(t=>t.k===a[0])-TOOLS.findIndex(t=>t.k===b[0]));
+    parts.forEach(([k,pv])=>{const hh=cell*pv/v;yy-=hh;h+=`<rect x="${x}" y="${yy.toFixed(2)}" width="${cell}" height="${(hh+.3).toFixed(2)}" fill="${mix(C[k],C.empty,t)}"/>`});
+    h+=`</g>`;
+  });
+  svg.innerHTML=h;
+  return {lv,step};
+}
+
+// ---------- 立体（canvas 平行轴测，投影与底座/刻度尺取自 agy 版） ----------
+let hexes=[];
+function draw3D(dates){
+  const cv=$("cv3"), box=$("mainScroll");
+  const weeks=Math.ceil(dates.length/7);
+  const az=(weeks>30?21:30)*Math.PI/180, el=36*Math.PI/180;   // 周数少时转大一点角度，免得太扁
+  const uxW=Math.cos(az), uyW=Math.sin(az)*Math.sin(el), uxD=-Math.sin(az), uyD=Math.cos(az)*Math.sin(el);
+  const W=Math.max(640,box.clientWidth), padL=40, padR=72;
+  const step=Math.min(34,(W-padL-padR)/(weeks*uxW+7*Math.abs(uxD)));
+  const span=step*(weeks*uxW+7*Math.abs(uxD));
+  const cR=.8, plD=6, pad=.35;
+  const vals=dates.map(d=>dayParts(ymd(d),S.on).reduce((s,p)=>s+p[1],0));
+  const maxV=Math.max(...vals,0);
+  const maxH=Math.min(200,Math.max(130,step*7));
+  const hOf=v=>v>0&&maxV>0?Math.max(3.5,v/maxV*maxH):0;             // 柱高 = 真实比例
+  const ox=(W-span)/2+7*Math.abs(uxD)*step+ (padL-padR)/2;
+  const rawY=(w,d,z)=>w*uyW*step+d*uyD*step-z;
+  let minY=Math.min(rawY(-pad,-pad,0),rawY(weeks,-pad,maxH));
+  dates.forEach((d,i)=>{const y=rawY(Math.floor(i/7),i%7,hOf(vals[i]));if(y<minY)minY=y});
+  const maxY=rawY(weeks-.2+pad,7-.2+pad,0)+plD+24;
+  const oy=18-minY, H=Math.ceil(oy+maxY+10);
+  const dpr=Math.min(devicePixelRatio||1,3);
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+"px";cv.style.height=H+"px";
+  const g=cv.getContext("2d");g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);
+  const P=(w,d,z)=>[ox+w*uxW*step+d*uxD*step, oy+w*uyW*step+d*uyD*step-z];
+  // 底座
+  const b00=P(-pad,-pad,0),b10=P(weeks-.2+pad,-pad,0),b11=P(weeks-.2+pad,7-.2+pad,0),b01=P(-pad,7-.2+pad,0);
+  const dn=(p)=>[p[0],p[1]+plD];
+  poly(g,[b00,b10,b11,b01],C.plT,C.rule);
+  poly(g,[b01,b11,dn(b11),dn(b01)],C.plL,C.rule);
+  poly(g,[b11,b10,dn(b10),dn(b11)],C.plR,C.rule);
+  // 月份沿前沿、星期沿左沿
+  g.font="500 10.5px "+css("--f-mono");g.fillStyle=C.muted;g.strokeStyle=C.muted;g.lineWidth=1;g.textBaseline="top";g.textAlign="left";
+  let lastM=-1,lastX=-99;
+  dates.forEach((d,i)=>{if(i%7)return;for(let j=0;j<7;j++){const dd=dates[i+j];if(dd&&(dd.getDate()===1||i===0)&&dd.getFullYear()===YEAR&&dd.getMonth()!==lastM){lastM=dd.getMonth();
+    const e=P(i/7,7.15,0);if(e[0]-lastX>=26){g.beginPath();g.moveTo(e[0],e[1]+plD);g.lineTo(e[0],e[1]+plD+4);g.stroke();g.fillText((dd.getMonth()+1)+"月",e[0]-4,e[1]+plD+6);lastX=e[0]}break}}});
+  g.textAlign="right";g.textBaseline="middle";
+  WD.forEach((w,d)=>{if(w){const q=P(-.55,d+.4,0);g.fillText(w,q[0]-4,q[1])}});
+  // 右后角刻度尺
+  if(maxV>0){const gx=b10[0]+10,gy=b10[1];g.strokeStyle=C.rule;g.beginPath();g.moveTo(gx,gy);g.lineTo(gx,gy-maxH);g.stroke();
+    g.textAlign="left";g.fillStyle=C.muted;g.font="10px "+css("--f-mono");
+    [0,.5,1].forEach(f=>{const ty=gy-maxH*f;g.beginPath();g.moveTo(gx-3,ty);g.lineTo(gx+3,ty);g.stroke();g.fillText(f?fmt(maxV*f):"0",gx+6,ty)})}
+  // 柱子：画家算法，从后往前
+  hexes=[];
+  const order=dates.map((d,i)=>i).sort((x,y)=>(Math.floor(x/7)-Math.floor(y/7))||(x%7-y%7));
+  for(const i of order){
+    const d=dates[i],w=Math.floor(i/7),r=i%7,ds=ymd(d),Ht=hOf(vals[i]);
+    const p00=P(w,r,0),p10=P(w+cR,r,0),p11=P(w+cR,r+cR,0),p01=P(w,r+cR,0);
+    if(!Ht){ if(d>today)poly(g,[p00,p10,p11,p01],null,C.rule); else poly(g,[p00,p10,p11,p01],C.empty,null); hexes.push({ds,pts:[p00,p10,p11,p01]}); continue }
+    const parts=dayParts(ds,S.on).sort((x,y)=>TOOLS.findIndex(t=>t.k===x[0])-TOOLS.findIndex(t=>t.k===y[0]));
+    let z=0;const up=(p,zz)=>[p[0],p[1]-zz];
+    for(const [tk,pv] of parts){const z1=z+Ht*pv/vals[i],col=C[tk];
+      poly(g,[up(p01,z1),up(p11,z1),up(p11,z),up(p01,z)],shade(col,.8));
+      poly(g,[up(p11,z1),up(p10,z1),up(p10,z),up(p11,z)],shade(col,.62));
+      z=z1}
+    poly(g,[up(p00,Ht),up(p10,Ht),up(p11,Ht),up(p01,Ht)],C[parts[parts.length-1][0]]);
+    hexes.push({ds,pts:[up(p00,Ht),up(p10,Ht),p10,p11,p01,up(p01,Ht)]});
+  }
+}
+function poly(g,pts,fill,stroke){g.beginPath();g.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)g.lineTo(pts[i][0],pts[i][1]);g.closePath();
+  if(fill){g.fillStyle=fill;g.fill()} if(stroke){g.strokeStyle=stroke;g.lineWidth=.8;g.stroke()}}
+function inPoly(x,y,p){let c=false;for(let i=0,j=p.length-1;i<p.length;j=i++){if(((p[i][1]>y)!==(p[j][1]>y))&&(x<(p[j][0]-p[i][0])*(y-p[i][1])/(p[j][1]-p[i][1])+p[i][0]))c=!c}return c}
+
+// ---------- 分家小图 ----------
+function renderRows(dates){
+  const rows=$("rows"); rows.innerHTML="";
+  const w=Math.max(rows.clientWidth-(rows.clientWidth>720?220:0),300);
+  for(const t of TOOLS){
+    let tk=0,cost=0,act=0,models={};
+    for(const d of allDates){const a=D.days[d][t.k];if(!a)continue;tk+=a[0]+a[1]+a[2]+a[3];cost+=a[4];act++;models[a[6]]=(models[a[6]]||0)+a[0]+a[1]+a[2]+a[3]}
+    if(!act)continue;
+    const top=Object.keys(models).sort((x,y)=>models[y]-models[x])[0]||"";
+    const span=Object.keys(D.days).filter(d=>D.days[d][t.k]).sort();
+    const row=document.createElement("div");row.className="row"+(S.on.has(t.k)?"":" off");row.dataset.k=t.k;
+    row.title="点击：在图 1 里加上或去掉 "+t.n;
+    row.innerHTML=`<div class="meta"><h3><i style="background:var(--c-${t.k})"></i>${t.n}</h3>
+      <div class="t">${fmtTok(tk)} <span class="s">token</span></div>
+      <div class="s num">$${Math.round(cost).toLocaleString("en-US")} · ${act} 天</div>
+      <div class="s">${span[0].slice(5)} 起 · 主力 ${top}</div></div>
+      <div class="scroll"><svg></svg></div>`;
+    rows.appendChild(row);
+    gridSVG(row.querySelector("svg"),dates,new Set([t.k]),{width:w,min:9,max:16,labels:false});
+  }
+}
+
+// ---------- 渲染 ----------
+let mainLv=null;
+function render(){
+  readColors();
+  const dates=rangeDates();
+  renderHead();
+  const box=$("mainScroll");
+  if(S.view==="2d"){
+    $("w2d").hidden=false;$("cv3").hidden=true;
+    const r=gridSVG($("grid2d"),dates,S.on,{width:box.clientWidth,min:11,max:S.range==="year"?20:46,labels:true});mainLv=r.lv;
+    const cut=r.lv.cut||[];
+    $("scale").innerHTML=`格内分段 = 各家当天占比 · 深浅按分位五档 ${[1,2,3,4,5].map(l=>`<i style="background:${mix(C.ink,C.empty,LV[l]*.85)}"></i>`).join("")} <span class="num">分界 ${cut.map(fmt).join(" / ")}</span>`;
+  }else{
+    $("w2d").hidden=true;$("cv3").hidden=false;draw3D(dates);
+    $("scale").textContent="柱高 = 当天真实用量 · 柱内分段 = 各家当天占比";
+  }
+  renderRows(dates);
+}
+
+// ---------- 悬停 ----------
+const tip=$("tip");
+function showTip(ds,e){
+  const day=D.days[ds]||{}; const f=METRIC[S.metric].f;
+  const rows=TOOLS.filter(t=>S.on.has(t.k)&&day[t.k]).map(t=>[t,day[t.k]]).sort((x,y)=>f(y[1])-f(x[1]));
+  const tot=rows.reduce((s,r)=>s+f(r[1]),0);
+  const dt=new Date(ds+"T00:00:00");
+  tip.innerHTML=`<div class="d">${ds} 周${"日一二三四五六"[dt.getDay()]}</div>`+
+    (rows.length?rows.map(([t,a])=>`<div class="r"><span><i style="background:var(--c-${t.k})"></i>${t.n}</span><span>${fmt(f(a))}</span></div>`).join("")+
+    `<div class="r" style="border-top:1px solid currentColor;margin-top:4px;padding-top:4px"><span>合计</span><span>${fmt(tot)}</span></div>`+
+    `<div class="m">主力 ${rows.map(([t,a])=>a[6]).filter(Boolean).slice(0,2).join(" / ")}</div>`:`<div class="m">没有记录</div>`);
+  tip.style.display="block";
+  const x=Math.min(e.clientX+14,innerWidth-tip.offsetWidth-8), y=e.clientY+16+tip.offsetHeight>innerHeight?e.clientY-tip.offsetHeight-10:e.clientY+16;
+  tip.style.left=x+"px";tip.style.top=y+"px";
+}
+document.addEventListener("pointermove",e=>{
+  let ds=null;
+  const el=e.target.closest&&e.target.closest("[data-d]");
+  if(el&&el.closest("svg"))ds=el.getAttribute("data-d");
+  else if(e.target.id==="cv3"){const r=e.target.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+    for(let i=hexes.length-1;i>=0;i--){if(inPoly(x,y,hexes[i].pts)){ds=hexes[i].ds;break}}}
+  if(ds)showTip(ds,e);else tip.style.display="none";
+});
+
+// ---------- 控件 ----------
+function seg(ids,key,vals){ids.forEach((id,i)=>$(id).addEventListener("click",()=>{S[key]=vals[i];ids.forEach((j,k)=>$(j).setAttribute("aria-pressed",k===i));render()}))}
+seg(["v2d","v3d"],"view",["2d","3d"]);
+seg(["mTotal","mNoCache","mCost"],"metric",["total","nocache","cost"]);
+seg(["rData","rYear"],"range",["data","year"]);
+$("tools").innerHTML=TOOLS.filter(t=>allDates.some(d=>D.days[d][t.k])).map(t=>`<button class="tool" data-k="${t.k}" aria-pressed="true"><i style="background:var(--c-${t.k})"></i>${t.n}</button>`).join("");
+function toggle(k){if(S.on.has(k)){if(S.on.size===1)return;S.on.delete(k)}else S.on.add(k);
+  document.querySelectorAll(".tool").forEach(x=>x.setAttribute("aria-pressed",S.on.has(x.dataset.k)));render()}
+$("tools").addEventListener("click",e=>{const b=e.target.closest(".tool");if(b)toggle(b.dataset.k)});
+$("rows").addEventListener("click",e=>{const r=e.target.closest(".row");if(r)toggle(r.dataset.k)});
+// 双击某家 = 只看它
+$("tools").addEventListener("dblclick",e=>{const b=e.target.closest(".tool");if(!b)return;S.on=new Set([b.dataset.k]);
+  document.querySelectorAll(".tool").forEach(x=>x.setAttribute("aria-pressed",S.on.has(x.dataset.k)));render()});
+
+const g=new Date(D.generatedAt);
+$("upd").textContent="更新于 "+ymd(g)+" "+pad(g.getHours())+":"+pad(g.getMinutes());
+$("yr").textContent=YEAR;
+if(D.demo){const b=document.createElement("span");b.className="demo";b.textContent="样例数据 · 不是真实用量";$("upd").after(b)}
+const cover=TOOLS.map(t=>{const ds=allDates.filter(d=>D.days[d][t.k]);return `${t.n} ${+ds[0].slice(5,7)}.${+ds[0].slice(8)} 起`}).join("，");
+const clFirst=allDates.find(d=>D.days[d].claude);
+const clGap=clFirst&&(g-new Date(clFirst+"T00:00:00"))/864e5<45&&clFirst.slice(5)!=="01-01";
+$("foot").innerHTML=`
+  <div><b>数据从哪来</b>　本机各家 AI 工具的日志，由开源工具 tokscale 读取，数据只在本机，不上传。每次运行都会把每天的数存进一份本地底账，日志被清理后，统计过的日子不会丢。</div>
+  <div><b>口径</b>　全部 token = 输入 + 输出（含思考）+ 缓存读 + 缓存写；缓存读通常占九成以上，所以另给"不含缓存"。费用按各家官方单价估算，不是实际扣费，订阅制下实际花的钱远少于此。</div>
+  <div><b>覆盖</b>　${cover}。${clGap?"Claude Code 默认只保留 30 天对话日志，更早的已经删掉了；在 ~/.claude/settings.json 里把 cleanupPeriodDays 设大可以避免。":""}</div>
+  <div class="gen">生成你自己的：<span class="cmd">npx tokenrings</span></div>`;
+
+if(location.hash==="#3d"){S.view="3d";$("v2d").setAttribute("aria-pressed","false");$("v3d").setAttribute("aria-pressed","true")}
+let rt;addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(render,120)});
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change",render);
+new MutationObserver(render).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+render();
+})();
+</script>
