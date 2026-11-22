@@ -48,5 +48,9 @@
   "bugs": {
     "url": "https://github.com/Gan-Git/tokenrings/issues"
   },
-  "author": "Gan-Git"
+  "author": "Gan-Git",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  }
 }
