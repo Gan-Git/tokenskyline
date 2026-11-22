@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// tokenrings: one command turns local AI coding token usage into a contribution graph (single HTML file).
+// tokenskyline: one command turns local AI coding token usage into a contribution graph (single HTML file).
 // Data layer: tokscale (open source, reads local logs, uploads nothing). Zero dependencies; macOS / Linux / Windows.
 import { spawnSync, spawn } from "node:child_process";
 import fs from "node:fs";
@@ -9,7 +9,8 @@ import { fileURLToPath } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const IS_WIN = process.platform === "win32";
-const HOME_DIR = path.join(os.homedir(), ".tokenrings");
+const HOME_DIR = path.join(os.homedir(), ".tokenskyline");
+const OLD_DIR = path.join(os.homedir(), ".tokenrings");   // early name; move its ledger over once
 const LEDGER = path.join(HOME_DIR, "ledger.json");
 const locale = process.env.LC_ALL || process.env.LANG || Intl.DateTimeFormat().resolvedOptions().locale || "";
 const ZH = /^zh/i.test(locale);
@@ -34,30 +35,30 @@ for (let i = 0; i < argv.length; i++) {
 }
 function help() {
   console.log(t(
-`用法：npx tokenrings [选项]
+`用法：npx tokenskyline [选项]
 
   读取本机 AI 工具日志（Claude Code、Codex、Gemini/Antigravity、Hermes、Cursor、OpenCode 等 60+ 种），
-  生成一个单文件 HTML 年轮图并用浏览器打开。数据只在本机。
+  生成一个单文件 HTML 天际线图并用浏览器打开。数据只在本机。
 
   --year 2026        统计哪一年（默认今年）
-  -o, --out 文件     输出路径（默认 ./tokenrings-<年>.html）
+  -o, --out 文件     输出路径（默认 ./tokenskyline-<年>.html）
   --clients a,b      只统计这些来源（tokscale 的 client 名）
   --from 文件        直接用已有的 tokscale graph JSON，不再扫描日志
   --demo             用样例数据生成，不读本机日志
   --no-open          生成后不自动打开
-  --no-ledger        不读写本地底账 ~/.tokenrings/ledger.json`,
-`Usage: npx tokenrings [options]
+  --no-ledger        不读写本地底账 ~/.tokenskyline/ledger.json`,
+`Usage: npx tokenskyline [options]
 
   Reads local logs of your AI coding tools (Claude Code, Codex, Gemini/Antigravity, Hermes, Cursor,
   OpenCode and 60+ more), writes a single-file HTML contribution graph and opens it. Nothing is uploaded.
 
   --year 2026        which year (default: this year)
-  -o, --out FILE     output path (default ./tokenrings-<year>.html)
+  -o, --out FILE     output path (default ./tokenskyline-<year>.html)
   --clients a,b      only these sources (tokscale client names)
   --from FILE        use an existing \`tokscale graph\` JSON instead of scanning
   --demo             build from sample data, don't read local logs
   --no-open          don't open the browser
-  --no-ledger        don't read or write ~/.tokenrings/ledger.json`));
+  --no-ledger        don't read or write ~/.tokenskyline/ledger.json`));
 }
 
 const fmt = n => ZH
@@ -74,8 +75,8 @@ if (opt.demo) {
   days = compact(ledger);
 }
 if (!Object.keys(days).length) {
-  log(t(`${opt.year} 年在本机没有找到任何 AI 工具的用量记录。可以先试试 npx tokenrings --demo`,
-        `No AI tool usage found on this machine for ${opt.year}. Try npx tokenrings --demo`));
+  log(t(`${opt.year} 年在本机没有找到任何 AI 工具的用量记录。可以先试试 npx tokenskyline --demo`,
+        `No AI tool usage found on this machine for ${opt.year}. Try npx tokenskyline --demo`));
   process.exit(1);
 }
 const totals = {};
@@ -90,7 +91,7 @@ const payload = {
 const tpl = fs.readFileSync(path.join(HERE, "..", "template.html"), "utf8");
 const json = JSON.stringify(payload).replace(/</g, "\\u003c");
 const html = "<!doctype html>\n" + tpl.replace('<script src="data/data.js"></script>', `<script>window.TOKEN_DATA=${json};</script>`);
-const outFile = path.resolve(opt.out || `tokenrings-${opt.year}${opt.demo ? "-demo" : ""}.html`);
+const outFile = path.resolve(opt.out || `tokenskyline-${opt.year}${opt.demo ? "-demo" : ""}.html`);
 fs.mkdirSync(path.dirname(outFile), { recursive: true });
 fs.writeFileSync(outFile, html);
 
@@ -110,7 +111,7 @@ if (opt.open) {
 // ---------- 1. scan with tokscale ----------
 function scan() {
   if (opt.from) return JSON.parse(fs.readFileSync(opt.from, "utf8"));
-  const tmp = path.join(os.tmpdir(), `tokenrings-${process.pid}.json`);
+  const tmp = path.join(os.tmpdir(), `tokenskyline-${process.pid}.json`);
   const args = ["-y", "tokscale@latest", "graph", "--since", `${opt.year}-01-01`, "--until", `${opt.year}-12-31`,
                 "--output", tmp, "--no-spinner"];
   if (opt.clients) args.push("--client", opt.clients);
@@ -131,6 +132,9 @@ function scan() {
 function mergeLedger(graph) {
   const sumRows = rows => rows.reduce((s, r) => s + Object.values(r.tokens).reduce((a, b) => a + b, 0), 0);
   let ledger = {};
+  if (opt.ledger && !fs.existsSync(LEDGER) && fs.existsSync(path.join(OLD_DIR, "ledger.json"))) {
+    fs.mkdirSync(HOME_DIR, { recursive: true }); fs.copyFileSync(path.join(OLD_DIR, "ledger.json"), LEDGER);
+  }
   if (opt.ledger) { try { ledger = JSON.parse(fs.readFileSync(LEDGER, "utf8")); } catch { ledger = {}; } }
   for (const day of graph.contributions || []) {
     const by = {};

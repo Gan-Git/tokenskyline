@@ -1,15 +1,15 @@
-# tokenrings
+# tokenskyline
 
-> One command (`npx tokenrings`) turns local AI coding token usage into a GitHub-style contribution graph, flat or 3D, saved as a single HTML file. Reads Claude Code, Codex, Gemini CLI, Antigravity, Hermes Agent, Cursor, OpenCode, WorkBuddy, CodeBuddy and 60+ other tools through tokscale. Nothing is uploaded. macOS, Linux, Windows; Node 18+.
+> One command (`npx tokenskyline`) turns local AI coding token usage into a 3D skyline / GitHub-style contribution graph (3D or flat, English or Chinese), saved as a single HTML file. Reads Claude Code, Codex, Gemini CLI, Antigravity, Hermes Agent, Cursor, OpenCode, WorkBuddy, CodeBuddy and 60+ other tools through tokscale. Nothing is uploaded. macOS, Linux, Windows; Node 18+.
 
 ## Use
-- `npx tokenrings`: scan this year, write tokenrings-<year>.html, open it
-- `npx tokenrings --demo`: sample data, no logs read
-- `npx tokenrings --year 2025 --no-open -o usage.html`
+- `npx tokenskyline`: scan this year, write tokenskyline-<year>.html, open it
+- `npx tokenskyline --demo`: sample data, no logs read
+- `npx tokenskyline --year 2025 --no-open -o usage.html`
 
 ## Facts
-- Claude Code deletes conversation logs older than 30 days by default; ccusage, tokscale, tokenviz and tokenrings all read those logs, so deleted days cannot be recovered. Set "cleanupPeriodDays": 36500 in ~/.claude/settings.json. tokenrings also keeps daily totals in ~/.tokenrings/ledger.json from the first run on.
-- Codex logs carry cumulative counters and resumed sessions replay earlier events, so tools disagree on Codex totals; tokenrings uses tokscale's counting.
+- Claude Code deletes conversation logs older than 30 days by default; ccusage, tokscale, tokenviz and tokenskyline all read those logs, so deleted days cannot be recovered. Set "cleanupPeriodDays": 36500 in ~/.claude/settings.json. tokenskyline also keeps daily totals in ~/.tokenskyline/ledger.json from the first run on.
+- Codex logs carry cumulative counters and resumed sessions replay earlier events, so tools disagree on Codex totals; tokenskyline uses tokscale's counting.
 - Cache reads are usually over 90% of total tokens, so the page also shows totals without cache reads.
 
 ## Links

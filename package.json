@@ -1,10 +1,10 @@
 {
-  "name": "tokenrings",
+  "name": "tokenskyline",
   "version": "0.1.0",
-  "description": "One command to turn your local AI coding token usage (Claude Code, Codex, Gemini/Antigravity, Hermes, Cursor, OpenCode, 60+ tools) into a GitHub-style contribution graph, flat or 3D, as a single HTML file.",
+  "description": "Your year of AI coding as a 3D token skyline. One command reads local logs of Claude Code, Codex, Gemini/Antigravity, Hermes, Cursor, OpenCode and 60+ tools and writes a single HTML file: GitHub-style contribution graph, flat or 3D.",
   "type": "module",
   "bin": {
-    "tokenrings": "bin/tokenrings.mjs"
+    "tokenskyline": "bin/tokenskyline.mjs"
   },
   "files": [
     "bin",
@@ -26,7 +26,9 @@
     "cursor",
     "gemini-cli",
     "github-contributions",
+    "github-skyline",
     "heatmap",
+    "skyline",
     "token",
     "token-usage",
     "tokscale",
@@ -38,15 +40,15 @@
   "license": "MIT",
   "scripts": {
     "test": "node test/check.mjs",
-    "demo": "node bin/tokenrings.mjs --demo"
+    "demo": "node bin/tokenskyline.mjs --demo"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Gan-Git/tokenrings.git"
+    "url": "git+https://github.com/Gan-Git/tokenskyline.git"
   },
-  "homepage": "https://github.com/Gan-Git/tokenrings#readme",
+  "homepage": "https://github.com/Gan-Git/tokenskyline#readme",
   "bugs": {
-    "url": "https://github.com/Gan-Git/tokenrings/issues"
+    "url": "https://github.com/Gan-Git/tokenskyline/issues"
   },
   "author": "Gan-Git",
   "publishConfig": {

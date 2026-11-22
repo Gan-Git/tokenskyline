@@ -1,5 +1,5 @@
 node_modules/
 *.tgz
-tokenrings-*.html
+tokenskyline-*.html
 !docs/demo.html
 .DS_Store

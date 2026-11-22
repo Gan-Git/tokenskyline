@@ -4,8 +4,8 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 
-const bin = path.join("bin", "tokenrings.mjs");
-const out = fs.mkdtempSync(path.join(os.tmpdir(), "tokenrings-"));
+const bin = path.join("bin", "tokenskyline.mjs");
+const out = fs.mkdtempSync(path.join(os.tmpdir(), "tokenskyline-"));
 const env = { ...process.env, LANG: "en_US.UTF-8", LC_ALL: "en_US.UTF-8" };
 const run = (...args) => spawnSync(process.execPath, [bin, ...args], { encoding: "utf8", env });
 let failed = 0;
