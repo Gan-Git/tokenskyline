@@ -39,5 +39,14 @@
   "scripts": {
     "test": "node test/check.mjs",
     "demo": "node bin/tokenrings.mjs --demo"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gan-Git/tokenrings.git"
+  },
+  "homepage": "https://github.com/Gan-Git/tokenrings#readme",
+  "bugs": {
+    "url": "https://github.com/Gan-Git/tokenrings/issues"
+  },
+  "author": "Gan-Git"
 }
