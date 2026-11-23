@@ -557,6 +557,7 @@ const cover=TOOLS.map(t=>`${t.n} ${L.from(mdShort(allDates.find(d=>D.days[d][t.k
 const clFirst=allDates.find(d=>D.days[d].claude);
 const clGap=!!clFirst&&(g-new Date(clFirst+"T00:00:00"))/864e5<45&&clFirst.slice(5)!=="01-01";
 $("foot").innerHTML=L.foot(cover,clGap);
+document.querySelectorAll(".copy").forEach(b=>b.title=L.copyTitle);
 
 let rt;addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(render,120)});
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change",render);
