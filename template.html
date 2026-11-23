@@ -27,12 +27,16 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .cmd{margin-left:auto;font-family:var(--f-mono);font-size:12px;letter-spacing:0;text-transform:none;color:var(--ink);border:1px solid var(--ink);padding:1px 7px}
 .demo{color:var(--bg);background:var(--c-claude,#C0522B);padding:0 6px;letter-spacing:.04em}
 .cmd::before{content:"$ ";color:var(--muted)}
-a.cmd{text-decoration:none}
-.gh{display:inline-flex;align-items:center;gap:6px;color:var(--ink);text-decoration:none;font-family:var(--f-mono);font-size:12px;letter-spacing:0;text-transform:none;border:1px solid var(--rule);padding:1px 8px}
+.cmd.copy{font:inherit;font-family:var(--f-mono);background:none;cursor:copy;position:relative}
+.toplinks{margin-left:auto;display:inline-flex;align-items:stretch;gap:8px;align-self:center}
+.toplinks>a{display:inline-flex;align-items:center;gap:6px;height:24px;box-sizing:border-box;padding:0 9px;margin:0;line-height:1;font-family:var(--f-mono);font-size:12px;letter-spacing:0;text-transform:none;color:var(--ink);border:1px solid var(--ink);text-decoration:none}
+.toplinks svg{display:block}
 .gh:hover{border-color:var(--ink);background:var(--ink);color:var(--bg)}
-a.cmd::after{content:" ↗";color:var(--muted)}
-a.cmd:hover{background:var(--ink);color:var(--bg)}
-a.cmd:hover::before,a.cmd:hover::after{color:var(--bg)}
+.cmd.copy::after{content:" ⧉";color:var(--muted)}
+.cmd.copy:hover{background:var(--ink);color:var(--bg)}
+.cmd.copy:hover::before,.cmd.copy:hover::after{color:var(--bg)}
+.toplinks>button{display:inline-flex;align-items:center;height:24px;box-sizing:border-box;padding:0 9px;margin:0;line-height:1;font-size:12px;color:var(--ink);border:1px solid var(--ink)}
+.copytip{position:fixed;z-index:30;background:var(--ink);color:var(--bg);font-size:12px;padding:6px 10px;max-width:320px;pointer-events:none}
 .ext{color:var(--ink);text-underline-offset:3px;font-family:var(--f-mono);font-size:12.5px}
 .ext:hover{text-decoration-thickness:2px}
 h1,h2{font-family:var(--f-display);font-weight:700;margin:0;text-wrap:balance}
@@ -123,7 +127,7 @@ svg text{fill:var(--muted);font-family:var(--f-mono);font-size:10px}
 
 <div class="wrap">
   <header class="head" id="head">
-    <div class="eyebrow"><span id="yr"></span> · <span id="brand"></span> · <span id="upd"></span><a class="cmd" href="https://github.com/Gan-Git/tokenskyline" target="_blank" rel="noopener" title="GitHub · tokenskyline">npx tokenskyline</a><a class="gh" href="https://github.com/Gan-Git/tokenskyline" target="_blank" rel="noopener" aria-label="GitHub"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a></div>
+    <div class="eyebrow"><span id="yr"></span> · <span id="brand"></span> · <span id="upd"></span><span class="toplinks"><button type="button" class="cmd copy" data-copy="npx tokenskyline">npx tokenskyline</button><a class="gh" href="https://github.com/Gan-Git/tokenskyline" target="_blank" rel="noopener" aria-label="GitHub"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a></span></div>
     <div class="hero">
       <div class="heroL">
         <div class="big" id="bigNum">—</div>
@@ -180,13 +184,13 @@ const L=ZH?{
   usd:"估算美元", none:"未选", estCost:"按官方价估算", perDay:"日均", cacheShare:"缓存读占", allTok:"全部 token",
   days:n=>n+" 天", activeDays:"有用量的日子", since:d=>d+" 起有记录", streak:"最长连续", peak:"最猛一天", led:n=>n+"主导",
   scale2d:"格内分段 = 各家当天占比 · 深浅按分位五档", cuts:"分界", scale3d:"拖动旋转 · 双击复位 · 柱高 = 当天真实用量 · 柱内分段 = 各家当天占比",
-  rowTip:n=>"点击：在图 1 里加上或去掉 "+n, more:n=>"+"+n+" 家", from:d=>d+" 起", main:"主力", total:"合计", noRec:"没有记录",
+  rowTip:n=>"点击：在图 1 里加上或去掉 "+n, more:n=>"+"+n+" 家", copied:"已复制", copyFail:"选中了命令，按 ⌘C / Ctrl+C 复制", howMac:"⌘+空格 输入"终端"，粘贴回车", howWin:"Win+R 输入 cmd 回车，再粘贴回车", howOther:"打开终端，粘贴回车", copyTitle:"点击复制命令", from:d=>d+" 起", main:"主力", total:"合计", noRec:"没有记录",
   wd:["一","","三","","五","","日"], weekStart:1,
   foot:(cover,gap)=>`
   <div><b>数据从哪来</b>　本机各家 AI 工具的日志，由开源工具 tokscale 读取，数据只在本机，不上传。每次运行都会把每天的数存进一份本地底账，日志被清理后，统计过的日子不会丢。</div>
   <div><b>口径</b>　全部 token = 输入 + 输出（含思考）+ 缓存读 + 缓存写；缓存读通常占九成以上，所以另给"不含缓存"。费用按各家官方单价估算，不是实际扣费，订阅制下实际花的钱远少于此。</div>
   <div><b>覆盖</b>　${cover}。${gap?"Claude Code 默认只保留 30 天对话日志，更早的已经删掉了；在 ~/.claude/settings.json 里把 cleanupPeriodDays 设大可以避免。":""}</div>
-  <div class="gen">生成你自己的：<a class="cmd" href="https://github.com/Gan-Git/tokenskyline" target="_blank" rel="noopener">npx tokenskyline</a><a class="ext" href="https://github.com/Gan-Git/tokenskyline" target="_blank" rel="noopener">GitHub ↗</a><a class="ext" href="https://www.npmjs.com/package/tokenskyline" target="_blank" rel="noopener">npm ↗</a></div>`
+  <div class="gen">生成你自己的：<button type="button" class="cmd copy" data-copy="npx tokenskyline">npx tokenskyline</button><a class="ext" href="https://github.com/Gan-Git/tokenskyline" target="_blank" rel="noopener">GitHub ↗</a><a class="ext" href="https://www.npmjs.com/package/tokenskyline" target="_blank" rel="noopener">npm ↗</a></div>`
 }:{
   title:"Token Skyline", brand:"AI token skyline", upd:"updated", demo:"sample data · not real usage",
   h1:"All tools together", fig1:"fig. 1 · stacked", h2:"One tool at a time", h2note:"each row colored by its own quartiles · click a row to add or remove it from fig. 1",
@@ -195,13 +199,13 @@ const L=ZH?{
   usd:"est. USD", none:"none", estCost:"at list prices", perDay:"per day", cacheShare:"cache reads", allTok:"all tokens",
   days:n=>n+(n===1?" day":" days"), activeDays:"active days", since:d=>"since "+d, streak:"longest streak", peak:"busiest day", led:n=>"mostly "+n,
   scale2d:"cell split = each tool's share that day · shade = quintile", cuts:"cuts", scale3d:"drag to rotate · double-click to reset · bar height = real usage that day · segments = each tool's share",
-  rowTip:n=>"Click to add or remove "+n+" in fig. 1", more:n=>"+"+n+" more", from:d=>"since "+d, main:"top model", total:"Total", noRec:"no usage",
+  rowTip:n=>"Click to add or remove "+n+" in fig. 1", more:n=>"+"+n+" more", copied:"Copied", copyFail:"Command selected, press ⌘C / Ctrl+C", howMac:"⌘+Space, type Terminal, paste and press Return", howWin:"Win+R, type cmd, Enter, then paste and press Enter", howOther:"open a terminal, paste and press Enter", copyTitle:"Click to copy the command", from:d=>"since "+d, main:"top model", total:"Total", noRec:"no usage",
   wd:["","Mon","","Wed","","Fri",""], weekStart:0,
   foot:(cover,gap)=>`
   <div><b>Where the data comes from</b>　Local logs of your AI coding tools, read by the open-source tokscale. Nothing leaves your machine. Every run saves each day's totals to a local ledger, so days stay counted after the tools delete their logs.</div>
   <div><b>What is counted</b>　All tokens = input + output (incl. reasoning) + cache reads + cache writes. Cache reads are usually over 90%, hence the "no cache reads" view. Cost is estimated at list prices, not what you paid; on a subscription you pay far less.</div>
   <div><b>Coverage</b>　${cover}.${gap?" Claude Code keeps only 30 days of conversation logs by default, so earlier days are gone. Set a large cleanupPeriodDays in ~/.claude/settings.json to keep them.":""}</div>
-  <div class="gen">Make your own:<a class="cmd" href="https://github.com/Gan-Git/tokenskyline" target="_blank" rel="noopener">npx tokenskyline</a><a class="ext" href="https://github.com/Gan-Git/tokenskyline" target="_blank" rel="noopener">GitHub ↗</a><a class="ext" href="https://www.npmjs.com/package/tokenskyline" target="_blank" rel="noopener">npm ↗</a></div>`
+  <div class="gen">Make your own:<button type="button" class="cmd copy" data-copy="npx tokenskyline">npx tokenskyline</button><a class="ext" href="https://github.com/Gan-Git/tokenskyline" target="_blank" rel="noopener">GitHub ↗</a><a class="ext" href="https://www.npmjs.com/package/tokenskyline" target="_blank" rel="noopener">npm ↗</a></div>`
 };
 document.documentElement.lang=ZH?"zh-CN":"en";
 document.title=L.title;
@@ -517,6 +521,17 @@ cv3.addEventListener("pointermove",e=>{if(!drag)return;const dx=e.clientX-drag.x
 const endDrag=()=>{drag=null};
 cv3.addEventListener("pointerup",endDrag);cv3.addEventListener("pointercancel",endDrag);
 cv3.addEventListener("dblclick",()=>{S.rot=null;render()});
+
+// ---------- 点击复制命令（网页不能直接调起终端，这是浏览器允许范围内最近的做法） ----------
+const OS=/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent)?"mac":/Win/.test(navigator.platform||navigator.userAgent)?"win":"other";
+function copyTip(btn,text){let t=document.createElement("div");t.className="copytip";t.textContent=text;document.body.append(t);
+  const r=btn.getBoundingClientRect();t.style.top=(r.bottom+6)+"px";t.style.left=Math.max(8,Math.min(innerWidth-t.offsetWidth-8,r.right-t.offsetWidth))+"px";
+  setTimeout(()=>t.remove(),3200)}
+document.addEventListener("click",async e=>{const b=e.target.closest(".copy");if(!b)return;const cmd=b.dataset.copy;
+  const how=OS==="mac"?L.howMac:OS==="win"?L.howWin:L.howOther;
+  try{await navigator.clipboard.writeText(cmd);copyTip(b,`${L.copied} ✓ · ${how}`)}
+  catch(_){const sel=getSelection(),rg=document.createRange();rg.selectNodeContents(b);sel.removeAllRanges();sel.addRange(rg);copyTip(b,L.copyFail)}});
+document.querySelectorAll(".copy").forEach(b=>b.title=L.copyTitle);
 
 // ---------- 文案 + 控件 ----------
 ["h1","fig1","h2","h2note","v3d","v2d","mTotal","mNoCache","mCost","rData","rYear"].forEach(id=>$(id).textContent=L[id]);
