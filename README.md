@@ -84,7 +84,10 @@ npx tokenskyline
 ```bash
 npm test          # smoke test; CI runs it on Linux, macOS and Windows with Node 18 and 22
 npm run demo      # writes and opens tokenskyline-<year>-demo.html
+npm run variants  # builds 8 data shapes into test/out/
 ```
+
+Then serve the repo folder (`python3 -m http.server`) and open `test/fit.html`: it loads every data shape at 10 desktop screen sizes, in Chinese and English, 3D and flat, and checks that the chart and its caption fit on the first screen, the page never scrolls sideways, and the 3D chart takes at least 28% of the screen height. All 240 combinations pass.
 
 `template.html` is the whole page. The CLI inlines the data into it in place of `<script src="data/data.js"></script>`.
 

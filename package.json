@@ -40,7 +40,8 @@
   "license": "MIT",
   "scripts": {
     "test": "node test/check.mjs",
-    "demo": "node bin/tokenskyline.mjs --demo"
+    "demo": "node bin/tokenskyline.mjs --demo",
+    "variants": "node test/variants.mjs"
   },
   "repository": {
     "type": "git",

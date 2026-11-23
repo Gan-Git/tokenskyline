@@ -3,3 +3,4 @@ node_modules/
 tokenskyline-*.html
 !docs/demo.html
 .DS_Store
+test/out/

@@ -1,0 +1,39 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>One-screen fit check</title>
+<style>body{font:13px/1.4 Menlo,monospace;padding:16px;background:#fff;color:#111}table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:2px 6px;text-align:right}.bad{background:#fdd}.ok{background:#dfd}#stage{position:absolute;left:-99999px;top:0}</style>
+<h1>One-screen fit check</h1>
+<p id="status">running…</p>
+<table id="t"><thead><tr><th>variant</th><th>lang</th><th>view</th><th>viewport</th><th>chart bottom</th><th>caption bottom</th><th>side col h / chart h</th><th>h-overflow</th><th>canvas h</th><th>result</th></tr></thead><tbody></tbody></table>
+<div id="stage"></div>
+<script>
+// Each variant page is loaded in an iframe of the target viewport size and measured from inside.
+const VIEWPORTS=[[1280,720],[1366,768],[1280,800],[1440,900],[1470,956],[1536,864],[1680,1050],[1920,1080],[2560,1440],[1024,768]];
+const OPTS=[["zh","3d"],["en","3d"],["en","flat"]];
+const results=[];
+function measure(f){
+  const w=f.contentWindow,d=w.document,vh=w.innerHeight;
+  const flat=!d.getElementById("w2d").hidden;
+  const chart=flat?d.getElementById("grid2d"):d.getElementById("cv3");
+  const cr=chart.getBoundingClientRect(), sc=d.getElementById("scale").getBoundingClientRect();
+  const side=d.getElementById("kpiOver"), sideH=side.hidden?0:side.getBoundingClientRect().height;
+  return {vh, chartBottom:Math.round(cr.bottom), capBottom:Math.round(sc.bottom), sideH:Math.round(sideH), chartH:Math.round(cr.height),
+          overflow:d.documentElement.scrollWidth>w.innerWidth+1};
+}
+function run(src,w,h){return new Promise(res=>{const f=document.createElement("iframe");f.width=w;f.height=h;f.style.border=0;
+  f.onload=()=>setTimeout(()=>{try{res(measure(f))}catch(e){res({err:String(e)})}f.remove()},250);f.src=src;document.getElementById("stage").append(f)})}
+(async()=>{
+  const names=await (await fetch("out/list.json")).json();
+  const tb=document.querySelector("tbody");let bad=0,n=0;
+  for(const nm of names)for(const [lang,view] of OPTS)for(const [w,h] of VIEWPORTS){
+    const m=await run(`out/${nm}.html#${lang}-${view}`,w,h);n++;
+    const big=view==='flat'||m.chartH>=0.28*m.vh;   // 立体图至少占屏高 28%，不然放得下也看不清
+    const ok=!m.err&&m.chartBottom<=m.vh&&m.capBottom<=m.vh&&!m.overflow&&(m.sideH<=Math.max(m.chartH,1)+40)&&big;
+    if(!ok)bad++;
+    results.push({nm,lang,view,w,h,...m,ok});
+    tb.insertAdjacentHTML("beforeend",`<tr class="${ok?"ok":"bad"}"><td>${nm}</td><td>${lang}</td><td>${view}</td><td>${w}×${h}</td><td>${m.chartBottom}/${m.vh}</td><td>${m.capBottom}</td><td>${m.sideH}/${m.chartH}</td><td>${m.overflow}</td><td>${m.chartH}</td><td>${ok?"ok":"FAIL "+(m.err||"")}</td></tr>`);
+  }
+  document.getElementById("status").textContent=`${n-bad}/${n} fit on one screen`;
+  window.RESULTS=results;window.DONE=true;
+})();
+</script>

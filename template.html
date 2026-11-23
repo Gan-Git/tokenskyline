@@ -21,7 +21,7 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5}
-.wrap{max-width:1120px;margin:0 auto;padding-block:clamp(18px,4vh,40px) 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:clamp(22px,4.5vh,40px)}
+.wrap{max-width:max(1120px,min(82vw,1800px));margin:0 auto;padding-block:clamp(18px,4vh,40px) 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:clamp(22px,4.5vh,40px)}
 .num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 .eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}
 .cmd{margin-left:auto;font-family:var(--f-mono);font-size:12px;letter-spacing:0;text-transform:none;color:var(--ink);border:1px solid var(--ink);padding:1px 7px}
@@ -36,8 +36,10 @@ h1,h2{font-family:var(--f-display);font-weight:700;margin:0;text-wrap:balance}
 .heroR{flex:1 1 420px;min-width:0;display:grid;gap:10px;align-content:end}
 .heroR .legend{margin-inline:-9px}
 .chartbox{display:grid;grid-template-columns:minmax(0,1fr)}
-.chartbox.side{grid-template-columns:minmax(150px,190px) minmax(0,1fr);gap:28px;align-items:center}
-.kpiOver .kpis{grid-template-columns:1fr;gap:16px}
+.chartbox.side{grid-template-columns:minmax(250px,290px) minmax(0,1fr);gap:24px;align-items:center}
+.kpiOver .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px}
+.kpiOver .kpi b{font-size:18px}
+.kpiOver .kpi .sub{font-size:10.5px}
 #bigSub{overflow-wrap:anywhere}
 .big{font-family:var(--f-display);font-weight:700;font-size:clamp(44px,min(10vw,11vh),104px);line-height:.9;letter-spacing:-.03em}
 .big small{font-size:.32em;letter-spacing:0;font-weight:500;margin-left:.25em;color:var(--muted)}
@@ -51,6 +53,7 @@ h1,h2{font-family:var(--f-display);font-weight:700;margin:0;text-wrap:balance}
 .legend{display:flex;flex-wrap:wrap;gap:2px 6px;font-size:12px;color:var(--muted);margin-inline:-9px}
 .legend .tool{font-size:12px;padding:3px 9px}
 .legend .tool b{color:var(--ink);font-weight:500}
+.legend .more{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
 .legend .tool[aria-pressed="false"]{text-decoration:line-through;text-decoration-color:var(--rule)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend i{width:9px;height:9px;display:inline-block}
@@ -167,7 +170,7 @@ const L=ZH?{
   usd:"估算美元", none:"未选", estCost:"按官方价估算", perDay:"日均", cacheShare:"缓存读占", allTok:"全部 token",
   days:n=>n+" 天", activeDays:"有用量的日子", since:d=>d+" 起有记录", streak:"最长连续", peak:"最猛一天", led:n=>n+"主导",
   scale2d:"格内分段 = 各家当天占比 · 深浅按分位五档", cuts:"分界", scale3d:"柱高 = 当天真实用量 · 柱内分段 = 各家当天占比",
-  rowTip:n=>"点击：在图 1 里加上或去掉 "+n, from:d=>d+" 起", main:"主力", total:"合计", noRec:"没有记录",
+  rowTip:n=>"点击：在图 1 里加上或去掉 "+n, more:n=>"+"+n+" 家", from:d=>d+" 起", main:"主力", total:"合计", noRec:"没有记录",
   wd:["一","","三","","五","","日"], weekStart:1,
   foot:(cover,gap)=>`
   <div><b>数据从哪来</b>　本机各家 AI 工具的日志，由开源工具 tokscale 读取，数据只在本机，不上传。每次运行都会把每天的数存进一份本地底账，日志被清理后，统计过的日子不会丢。</div>
@@ -182,7 +185,7 @@ const L=ZH?{
   usd:"est. USD", none:"none", estCost:"at list prices", perDay:"per day", cacheShare:"cache reads", allTok:"all tokens",
   days:n=>n+(n===1?" day":" days"), activeDays:"active days", since:d=>"since "+d, streak:"longest streak", peak:"busiest day", led:n=>"mostly "+n,
   scale2d:"cell split = each tool's share that day · shade = quintile", cuts:"cuts", scale3d:"bar height = real usage that day · segments = each tool's share",
-  rowTip:n=>"Click to add or remove "+n+" in fig. 1", from:d=>"since "+d, main:"top model", total:"Total", noRec:"no usage",
+  rowTip:n=>"Click to add or remove "+n+" in fig. 1", more:n=>"+"+n+" more", from:d=>"since "+d, main:"top model", total:"Total", noRec:"no usage",
   wd:["","Mon","","Wed","","Fri",""], weekStart:0,
   foot:(cover,gap)=>`
   <div><b>Where the data comes from</b>　Local logs of your AI coding tools, read by the open-source tokscale. Nothing leaves your machine. Every run saves each day's totals to a local ledger, so days stay counted after the tools delete their logs.</div>
@@ -296,9 +299,11 @@ function renderHead(){
   ].map(([b,s,t])=>`<div class="kpi"><b>${b}</b><span>${s}</span><span class="sub">${t}</span></div>`).join("");
   const sum=Object.values(perTool).reduce((a,b)=>a+b,0)||1;
   $("share").innerHTML=TOOLS.filter(t=>on.has(t.k)).map(t=>`<i style="width:${perTool[t.k]/sum*100}%;background:var(--c-${t.k})" title="${t.n}"></i>`).join("");
-  $("shareLegend").innerHTML=TOOLS.map(t=>{const o=on.has(t.k);
+  const LMAX=8, all=S.legendAll||TOOLS.length<=LMAX, shown=all?TOOLS:TOOLS.slice(0,LMAX-1);   // 工具太多时图例只列前 7 家，免得把顶部撑高
+  $("shareLegend").innerHTML=shown.map(t=>{const o=on.has(t.k);
     return `<button class="tool" data-k="${t.k}" aria-pressed="${o}" title="${L.rowTip(t.n)}"><i style="background:var(--c-${t.k})"></i>${t.n}`+
-      (o?` <b class="num">${(perTool[t.k]/sum*100).toFixed(1)}%</b> <span class="num">${fmt(perTool[t.k])}</span>`:"")+`</button>`}).join("");
+      (o?` <b class="num">${(perTool[t.k]/sum*100).toFixed(1)}%</b> <span class="num">${fmt(perTool[t.k])}</span>`:"")+`</button>`}).join("")+
+    (all?"":`<button class="tool more" id="legMore">${L.more(TOOLS.length-shown.length)}</button>`);
 }
 
 // ---------- 平面网格（SVG） ----------
@@ -346,11 +351,13 @@ function draw3D(dates){
   const az=(weeks>30?20:24)*Math.PI/180, el=32*Math.PI/180;   // 视角偏平：同样高度下格子更大
   const uxW=Math.cos(az), uyW=Math.sin(az)*Math.sin(el), uxD=-Math.sin(az), uyD=Math.cos(az)*Math.sin(el);
   const W=Math.max(480,box.clientWidth), padL=40, padR=72;
-  let step=Math.min(34,(W-padL-padR)/(weeks*uxW+7*Math.abs(uxD)));
+  let step=(W-padL-padR)/(weeks*uxW+7*Math.abs(uxD));
   // 一屏放下：格子和柱高一起缩，直到整张图塞进"图顶到窗口底"的剩余高度
   const top=box.getBoundingClientRect().top+scrollY;
-  const budget=Math.max(300,innerHeight-top-48);
-  const mhOf=s=>Math.min(200,Math.max(80,s*5));
+  const budget=Math.max(220,innerHeight-top-62);
+  const mhCap=Math.max(200,budget*.45);                       // 大屏上柱子也能长高
+  step=Math.min(step,Math.max(34,budget/11));
+  const mhOf=s=>Math.min(mhCap,Math.max(80,s*5));
   const need=s=>(weeks*uyW+7*uyD)*s+mhOf(s)+plDepth+60;
   const plDepth=6;
   while(step>6&&need(step)>budget)step*=.94;
@@ -365,7 +372,8 @@ function draw3D(dates){
   let minY=Math.min(rawY(-pad,-pad,0),rawY(weeks,-pad,maxH));
   dates.forEach((d,i)=>{const y=rawY(Math.floor(i/7),i%7,hOf(vals[i]));if(y<minY)minY=y});
   const maxY=rawY(weeks-.2+pad,7-.2+pad,0)+plD+24;
-  const oy=18-minY, H=Math.ceil(oy+maxY+10);
+  const sideH=$("kpiOver").hidden?0:$("kpiOver").offsetHeight;
+  const H0=Math.ceil(18-minY+maxY+10), H=Math.max(H0,sideH), oy=18-minY+(H-H0)/2;   // 不矮于左侧指标栏，图在其中垂直居中
   const dpr=Math.min(devicePixelRatio||1,3);
   cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+"px";cv.style.height=H+"px";
   const g=cv.getContext("2d");g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);
@@ -441,7 +449,8 @@ function render(){
   const box=$("mainScroll");
   if(S.view==="2d"){
     $("w2d").hidden=false;$("cv3").hidden=true;
-    const r=gridSVG($("grid2d"),dates,S.on,{width:box.clientWidth,min:11,max:S.range==="year"?20:46,labels:true});
+    const room=Math.max(160,innerHeight-(box.getBoundingClientRect().top+scrollY)-62);
+    const r=gridSVG($("grid2d"),dates,S.on,{width:box.clientWidth,min:9,max:Math.min(S.range==="year"?20:46,Math.floor((room-16)/7)),labels:true});
     const cut=r.lv.cut||[];
     $("scale").innerHTML=`${L.scale2d} ${[1,2,3,4,5].map(l=>`<i style="background:${mix(C.ink,C.empty,LV[l]*.85)}"></i>`).join("")} <span class="num">${L.cuts} ${cut.map(fmt).join(" / ")}</span>`;
   }else{
@@ -486,7 +495,7 @@ seg(["mTotal","mNoCache","mCost"],"metric",["total","nocache","cost"]);
 seg(["rData","rYear"],"range",["data","year"]);
 $("v3d").setAttribute("aria-pressed",S.view==="3d");$("v2d").setAttribute("aria-pressed",S.view==="2d");
 function toggle(k){if(S.on.has(k)){if(S.on.size===1)return;S.on.delete(k)}else S.on.add(k);render()}
-$("shareLegend").addEventListener("click",e=>{const b=e.target.closest(".tool");if(b)toggle(b.dataset.k)});
+$("shareLegend").addEventListener("click",e=>{if(e.target.closest(".more")){S.legendAll=true;render();return}const b=e.target.closest(".tool");if(b)toggle(b.dataset.k)});
 $("rows").addEventListener("click",e=>{const r=e.target.closest(".row");if(r)toggle(r.dataset.k)});
 // 双击某家 = 只看它
 $("shareLegend").addEventListener("dblclick",e=>{const b=e.target.closest(".tool");if(!b)return;S.on=new Set([b.dataset.k]);render()});
