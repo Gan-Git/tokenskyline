@@ -32,8 +32,9 @@ h1,h2{font-family:var(--f-display);font-weight:700;margin:0;text-wrap:balance}
 /* 顶部 */
 .head{display:grid;gap:clamp(10px,1.8vh,18px)}
 .hero{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 40px;justify-content:space-between}
-.heroL{min-width:0;max-width:min(100%,560px)}
-.heroR{flex:1 1 420px;min-width:0;display:grid;gap:10px;align-content:end}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.heroL{min-width:0;flex:0 0 auto}
+.heroR{flex:1 1 300px;min-width:0;display:grid;gap:10px;align-content:end}
 .heroR .legend{margin-inline:-9px}
 .chartbox{display:grid;grid-template-columns:minmax(0,1fr)}
 .chartbox.side{grid-template-columns:minmax(240px,270px) minmax(0,1fr);gap:8px;align-items:center}
@@ -51,7 +52,7 @@ h1,h2{font-family:var(--f-display);font-weight:700;margin:0;text-wrap:balance}
 .share{display:flex;height:10px;width:100%;background:var(--empty)}
 .share i{display:block;height:100%}
 .legend{display:flex;flex-wrap:wrap;gap:2px 6px;font-size:12px;color:var(--muted);margin-inline:-9px}
-.legend .tool{font-size:12px;padding:3px 9px}
+.legend .tool{font-size:11.5px;padding:2px 8px}
 .legend .tool b{color:var(--ink);font-weight:500}
 .legend .more{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
 .legend .tool[aria-pressed="false"]{text-decoration:line-through;text-decoration-color:var(--rule)}
@@ -127,7 +128,7 @@ svg text{fill:var(--muted);font-family:var(--f-mono);font-size:10px}
   </header>
 
   <section class="main">
-    <div class="cap"><h2 id="h1"></h2><span class="eyebrow" id="fig1"></span></div>
+    <div class="cap sr"><h2 id="h1"></h2><span class="eyebrow" id="fig1"></span></div>
     <div class="bar">
       <div class="seg" role="group" id="gView">
         <button id="v3d" aria-pressed="true"></button><button id="v2d" aria-pressed="false"></button>
@@ -289,7 +290,7 @@ function renderHead(){
   let bestLead="";if(best[0]){const dd=D.days[best[0]];bestLead=TN[[...on].filter(k=>dd[k]).sort((x,y)=>f(dd[y])-f(dd[x]))[0]]||""}
   const big = S.metric==="cost" ? ["$"+Math.round(tot).toLocaleString("en-US"),L.usd] : (()=>{const s=fmtTok(tot).split(" ");return [s[0],(s[1]?s[1]+" ":"")+"tokens"]})();
   $("bigNum").innerHTML=`${big[0]}<small>${ZH?big[1].replace("tokens","token"):big[1]}</small>`;
-  $("bigSub").textContent=`${METRIC[S.metric].lab} · ${[...on].map(k=>TN[k]).join(" + ")||L.none}`;
+  $("bigSub").textContent=METRIC[S.metric].lab;
   const cs=`${L.cacheShare} ${(tokCache/(tokAll||1)*100).toFixed(1)}%`;
   $("kpis").innerHTML=[
     S.metric==="cost"?[fmtTok(tokAll),L.allTok,cs]
@@ -302,8 +303,8 @@ function renderHead(){
   $("share").innerHTML=TOOLS.filter(t=>on.has(t.k)).map(t=>`<i style="width:${perTool[t.k]/sum*100}%;background:var(--c-${t.k})" title="${t.n}"></i>`).join("");
   const LMAX=8, all=S.legendAll||TOOLS.length<=LMAX, shown=all?TOOLS:TOOLS.slice(0,LMAX-1);   // 工具太多时图例只列前 7 家，免得把顶部撑高
   $("shareLegend").innerHTML=shown.map(t=>{const o=on.has(t.k);
-    return `<button class="tool" data-k="${t.k}" aria-pressed="${o}" title="${L.rowTip(t.n)}"><i style="background:var(--c-${t.k})"></i>${t.n}`+
-      (o?` <b class="num">${(perTool[t.k]/sum*100).toFixed(1)}%</b> <span class="num">${fmt(perTool[t.k])}</span>`:"")+`</button>`}).join("")+
+    return `<button class="tool" data-k="${t.k}" aria-pressed="${o}" title="${t.n} ${fmt(perTool[t.k])} · ${L.rowTip(t.n)}"><i style="background:var(--c-${t.k})"></i>${t.n}`+
+      (o?` <b class="num">${(perTool[t.k]/sum*100).toFixed(1)}%</b>`:"")+`</button>`}).join("")+
     (all?"":`<button class="tool more" id="legMore">${L.more(TOOLS.length-shown.length)}</button>`);
 }
 
@@ -352,7 +353,7 @@ function draw3D(dates){
   const W=Math.max(480,box.clientWidth), padL=40, padR=72, plDepth=6;
   // 一屏放下：图顶到窗口底剩多高，整张图就只能多高
   const top=box.getBoundingClientRect().top+scrollY;
-  const budget=Math.max(220,innerHeight-top-62);
+  const budget=Math.max(innerHeight*.5,innerHeight-top-62);   // 保底占屏高一半：图是主角
   const mhCap=Math.max(200,budget*.5);
   // 视角不写死：在一组好看的角度里挑格子最大的那个——周数少就转平、横着铺满宽度
   // 拖动旋转时用拖到的角度；否则自动挑。俯视角下限抬到 28°，前排高柱少挡后排
@@ -372,6 +373,7 @@ function draw3D(dates){
   let step=best.s;
   const mhOf=s=>Math.min(mhCap,Math.max(70,s*best.k));
   const span=step*(weeks*uxW+7*Math.abs(uxD));
+  cv.dataset.fill=(span/(W-padL-padR)).toFixed(2);   // 横向用满了多少（测试用）
   const cR=.72, plD=plDepth, pad=.35;   // 柱子占格子 72%，留缝能看到后排
   const vals=dates.map(d=>dayParts(ymd(d),S.on).reduce((s,p)=>s+p[1],0));
   const maxV=Math.max(...vals,0);

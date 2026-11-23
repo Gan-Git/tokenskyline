@@ -8,7 +8,9 @@
 <div id="stage"></div>
 <script>
 // Each variant page is loaded in an iframe of the target viewport size and measured from inside.
-const VIEWPORTS=[[1280,720],[1366,768],[1280,800],[1440,900],[1470,956],[1536,864],[1680,1050],[1920,1080],[2560,1440],[1024,768]];
+const VIEWPORTS=[[1280,720],[1366,768],[1280,800],[1440,900],[1470,956],[1536,864],[1680,1050],[1920,1080],[2560,1440],[1024,768],
+  [1010,600],[980,560],[1280,640],[3440,1440],[760,900],   // 浏览器放大 150%、窗口矮、超宽屏、半屏
+  [1200,680],[1280,700],[1366,680],[1440,760]];              // Mac 上 Chrome 默认窗口（没全屏）
 const OPTS=[["zh","3d"],["en","3d"],["en","flat"]];
 const results=[];
 function measure(f){
@@ -17,7 +19,8 @@ function measure(f){
   const chart=flat?d.getElementById("grid2d"):d.getElementById("cv3");
   const cr=chart.getBoundingClientRect(), sc=d.getElementById("scale").getBoundingClientRect();
   const side=d.getElementById("kpiOver"), sideH=side.hidden?0:side.getBoundingClientRect().height;
-  return {vh, chartBottom:Math.round(cr.bottom), capBottom:Math.round(sc.bottom), sideH:Math.round(sideH), chartH:Math.round(cr.height),
+  const fill=+(d.getElementById("cv3").dataset.fill||0);
+  return {vh, fill, chartBottom:Math.round(cr.bottom), capBottom:Math.round(sc.bottom), sideH:Math.round(sideH), chartH:Math.round(cr.height),
           overflow:d.documentElement.scrollWidth>w.innerWidth+1};
 }
 function run(src,w,h){return new Promise(res=>{const f=document.createElement("iframe");f.width=w;f.height=h;f.style.border=0;
@@ -27,7 +30,7 @@ function run(src,w,h){return new Promise(res=>{const f=document.createElement("i
   const tb=document.querySelector("tbody");let bad=0,n=0;
   for(const nm of names)for(const [lang,view] of OPTS)for(const [w,h] of VIEWPORTS){
     const m=await run(`out/${nm}.html#${lang}-${view}`,w,h);n++;
-    const big=view==='flat'||m.chartH>=0.28*m.vh;   // 立体图至少占屏高 28%，不然放得下也看不清
+    const big=view==='flat'||m.chartH>=0.40*m.vh||m.fill>=0.85;   // 立体图是主角：高度占屏 40% 以上，或者横向已经铺满 85% 以上
     const ok=!m.err&&m.chartBottom<=m.vh&&m.capBottom<=m.vh&&!m.overflow&&(m.sideH<=Math.max(m.chartH,1)+40)&&big;
     if(!ok)bad++;
     results.push({nm,lang,view,w,h,...m,ok});
