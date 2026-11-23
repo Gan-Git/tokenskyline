@@ -27,6 +27,12 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .cmd{margin-left:auto;font-family:var(--f-mono);font-size:12px;letter-spacing:0;text-transform:none;color:var(--ink);border:1px solid var(--ink);padding:1px 7px}
 .demo{color:var(--bg);background:var(--c-claude,#C0522B);padding:0 6px;letter-spacing:.04em}
 .cmd::before{content:"$ ";color:var(--muted)}
+a.cmd{text-decoration:none}
+a.cmd::after{content:" ↗";color:var(--muted)}
+a.cmd:hover{background:var(--ink);color:var(--bg)}
+a.cmd:hover::before,a.cmd:hover::after{color:var(--bg)}
+.ext{color:var(--ink);text-underline-offset:3px;font-family:var(--f-mono);font-size:12.5px}
+.ext:hover{text-decoration-thickness:2px}
 h1,h2{font-family:var(--f-display);font-weight:700;margin:0;text-wrap:balance}
 
 /* 顶部 */
@@ -101,7 +107,7 @@ button:focus-visible{outline:2px solid var(--hl);outline-offset:1px}
 
 .foot{font-size:12px;color:var(--muted);display:grid;gap:6px;max-width:72ch}
 .foot b{color:var(--ink);font-weight:500}
-.foot .gen{display:flex;align-items:baseline;gap:10px;margin-top:6px}
+.foot .gen{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 16px;margin-top:6px}
 .foot .gen .cmd{margin-left:0;font-size:14px;padding:3px 10px}
 
 #tip{position:fixed;z-index:20;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;padding:8px 10px;min-width:170px;display:none}
@@ -115,7 +121,7 @@ svg text{fill:var(--muted);font-family:var(--f-mono);font-size:10px}
 
 <div class="wrap">
   <header class="head" id="head">
-    <div class="eyebrow"><span id="yr"></span> · <span id="brand"></span> · <span id="upd"></span><span class="cmd">npx tokenskyline</span></div>
+    <div class="eyebrow"><span id="yr"></span> · <span id="brand"></span> · <span id="upd"></span><a class="cmd" href="https://github.com/Gan-Git/tokenskyline" target="_blank" rel="noopener" title="GitHub · tokenskyline">npx tokenskyline</a></div>
     <div class="hero">
       <div class="heroL">
         <div class="big" id="bigNum">—</div>
@@ -178,7 +184,7 @@ const L=ZH?{
   <div><b>数据从哪来</b>　本机各家 AI 工具的日志，由开源工具 tokscale 读取，数据只在本机，不上传。每次运行都会把每天的数存进一份本地底账，日志被清理后，统计过的日子不会丢。</div>
   <div><b>口径</b>　全部 token = 输入 + 输出（含思考）+ 缓存读 + 缓存写；缓存读通常占九成以上，所以另给"不含缓存"。费用按各家官方单价估算，不是实际扣费，订阅制下实际花的钱远少于此。</div>
   <div><b>覆盖</b>　${cover}。${gap?"Claude Code 默认只保留 30 天对话日志，更早的已经删掉了；在 ~/.claude/settings.json 里把 cleanupPeriodDays 设大可以避免。":""}</div>
-  <div class="gen">生成你自己的：<span class="cmd">npx tokenskyline</span></div>`
+  <div class="gen">生成你自己的：<a class="cmd" href="https://github.com/Gan-Git/tokenskyline" target="_blank" rel="noopener">npx tokenskyline</a><a class="ext" href="https://github.com/Gan-Git/tokenskyline" target="_blank" rel="noopener">GitHub ↗</a><a class="ext" href="https://www.npmjs.com/package/tokenskyline" target="_blank" rel="noopener">npm ↗</a></div>`
 }:{
   title:"Token Skyline", brand:"AI token skyline", upd:"updated", demo:"sample data · not real usage",
   h1:"All tools together", fig1:"fig. 1 · stacked", h2:"One tool at a time", h2note:"each row colored by its own quartiles · click a row to add or remove it from fig. 1",
@@ -193,7 +199,7 @@ const L=ZH?{
   <div><b>Where the data comes from</b>　Local logs of your AI coding tools, read by the open-source tokscale. Nothing leaves your machine. Every run saves each day's totals to a local ledger, so days stay counted after the tools delete their logs.</div>
   <div><b>What is counted</b>　All tokens = input + output (incl. reasoning) + cache reads + cache writes. Cache reads are usually over 90%, hence the "no cache reads" view. Cost is estimated at list prices, not what you paid; on a subscription you pay far less.</div>
   <div><b>Coverage</b>　${cover}.${gap?" Claude Code keeps only 30 days of conversation logs by default, so earlier days are gone. Set a large cleanupPeriodDays in ~/.claude/settings.json to keep them.":""}</div>
-  <div class="gen">Make your own:<span class="cmd">npx tokenskyline</span></div>`
+  <div class="gen">Make your own:<a class="cmd" href="https://github.com/Gan-Git/tokenskyline" target="_blank" rel="noopener">npx tokenskyline</a><a class="ext" href="https://github.com/Gan-Git/tokenskyline" target="_blank" rel="noopener">GitHub ↗</a><a class="ext" href="https://www.npmjs.com/package/tokenskyline" target="_blank" rel="noopener">npm ↗</a></div>`
 };
 document.documentElement.lang=ZH?"zh-CN":"en";
 document.title=L.title;
