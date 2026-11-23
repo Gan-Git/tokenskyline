@@ -35,9 +35,9 @@ h1,h2{font-family:var(--f-display);font-weight:700;margin:0;text-wrap:balance}
 .heroL{min-width:0;max-width:min(100%,560px)}
 .heroR{flex:1 1 420px;min-width:0;display:grid;gap:10px;align-content:end}
 .heroR .legend{margin-inline:-9px}
-.chartbox{position:relative}
-.kpiOver{position:absolute;top:4px;left:0;z-index:2;pointer-events:none}
-.kpiOver .kpis{grid-template-columns:repeat(2,auto);gap:10px 28px}
+.chartbox{display:grid;grid-template-columns:minmax(0,1fr)}
+.chartbox.side{grid-template-columns:minmax(150px,190px) minmax(0,1fr);gap:28px;align-items:center}
+.kpiOver .kpis{grid-template-columns:1fr;gap:16px}
 #bigSub{overflow-wrap:anywhere}
 .big{font-family:var(--f-display);font-weight:700;font-size:clamp(44px,min(10vw,11vh),104px);line-height:.9;letter-spacing:-.03em}
 .big small{font-size:.32em;letter-spacing:0;font-weight:500;margin-left:.25em;color:var(--muted)}
@@ -345,7 +345,7 @@ function draw3D(dates){
   const weeks=Math.ceil(dates.length/7);
   const az=(weeks>30?20:24)*Math.PI/180, el=32*Math.PI/180;   // 视角偏平：同样高度下格子更大
   const uxW=Math.cos(az), uyW=Math.sin(az)*Math.sin(el), uxD=-Math.sin(az), uyD=Math.cos(az)*Math.sin(el);
-  const ov=$("kpiOver"), W=Math.max(640,box.clientWidth), padL=ov.hidden?40:Math.min(ov.offsetWidth*.75,W*.26), padR=72;   // 指标浮在左上角时，图往右让
+  const W=Math.max(480,box.clientWidth), padL=40, padR=72;
   let step=Math.min(34,(W-padL-padR)/(weeks*uxW+7*Math.abs(uxD)));
   // 一屏放下：格子和柱高一起缩，直到整张图塞进"图顶到窗口底"的剩余高度
   const top=box.getBoundingClientRect().top+scrollY;
@@ -428,8 +428,10 @@ function renderRows(dates){
 // ---------- 渲染 ----------
 function placeLayout(){
   const wide=S.view==="3d"&&innerWidth>=980;
+  // 立体 + 宽屏：指标竖排在图左侧一栏（永不和图重叠），份额条和图例上到大数字右边
   if(wide){ $("heroR").append($("share"),$("shareLegend")); $("kpiOver").append($("kpis")); $("kpiOver").hidden=false }
   else { $("heroR").append($("kpis")); $("head").append($("share"),$("shareLegend")); $("kpiOver").hidden=true }
+  document.querySelector(".chartbox").classList.toggle("side",wide);
 }
 function render(){
   placeLayout();
