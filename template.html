@@ -21,7 +21,7 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5}
-.wrap{max-width:1120px;margin:0 auto;padding-block:40px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:40px}
+.wrap{max-width:1120px;margin:0 auto;padding-block:clamp(18px,4vh,40px) 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:clamp(22px,4.5vh,40px)}
 .num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 .eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}
 .cmd{margin-left:auto;font-family:var(--f-mono);font-size:12px;letter-spacing:0;text-transform:none;color:var(--ink);border:1px solid var(--ink);padding:1px 7px}
@@ -30,9 +30,16 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 h1,h2{font-family:var(--f-display);font-weight:700;margin:0;text-wrap:balance}
 
 /* 顶部 */
-.head{display:grid;gap:18px}
+.head{display:grid;gap:clamp(10px,1.8vh,18px)}
 .hero{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 40px;justify-content:space-between}
-.big{font-family:var(--f-display);font-weight:700;font-size:clamp(52px,10vw,104px);line-height:.9;letter-spacing:-.03em}
+.heroL{min-width:0;max-width:min(100%,560px)}
+.heroR{flex:1 1 420px;min-width:0;display:grid;gap:10px;align-content:end}
+.heroR .legend{margin-inline:-9px}
+.chartbox{position:relative}
+.kpiOver{position:absolute;top:4px;left:0;z-index:2;pointer-events:none}
+.kpiOver .kpis{grid-template-columns:repeat(2,auto);gap:10px 28px}
+#bigSub{overflow-wrap:anywhere}
+.big{font-family:var(--f-display);font-weight:700;font-size:clamp(44px,min(10vw,11vh),104px);line-height:.9;letter-spacing:-.03em}
 .big small{font-size:.32em;letter-spacing:0;font-weight:500;margin-left:.25em;color:var(--muted)}
 .kpis{display:grid;grid-template-columns:repeat(4,auto);gap:4px 28px}
 .kpi{display:grid;gap:2px}
@@ -41,7 +48,10 @@ h1,h2{font-family:var(--f-display);font-weight:700;margin:0;text-wrap:balance}
 .kpi .sub{font-family:var(--f-mono);font-size:11px;font-variant-numeric:tabular-nums;border-top:1px solid var(--rule);padding-top:3px;margin-top:2px}
 .share{display:flex;height:10px;width:100%;background:var(--empty)}
 .share i{display:block;height:100%}
-.legend{display:flex;flex-wrap:wrap;gap:6px 22px;font-size:12px;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:2px 6px;font-size:12px;color:var(--muted);margin-inline:-9px}
+.legend .tool{font-size:12px;padding:3px 9px}
+.legend .tool b{color:var(--ink);font-weight:500}
+.legend .tool[aria-pressed="false"]{text-decoration:line-through;text-decoration-color:var(--rule)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .legend i{width:9px;height:9px;display:inline-block}
 
@@ -99,14 +109,14 @@ svg text{fill:var(--muted);font-family:var(--f-mono);font-size:10px}
 </style>
 
 <div class="wrap">
-  <header class="head">
+  <header class="head" id="head">
     <div class="eyebrow"><span id="yr"></span> · <span id="brand"></span> · <span id="upd"></span><span class="cmd">npx tokenskyline</span></div>
     <div class="hero">
-      <div>
+      <div class="heroL">
         <div class="big" id="bigNum">—</div>
         <div class="note" id="bigSub"></div>
       </div>
-      <div class="kpis" id="kpis"></div>
+      <div class="heroR" id="heroR"><div class="kpis" id="kpis"></div></div>
     </div>
     <div class="share" id="share"></div>
     <div class="legend" id="shareLegend"></div>
@@ -124,10 +134,8 @@ svg text{fill:var(--muted);font-family:var(--f-mono);font-size:10px}
       <div class="seg" role="group" id="gRange">
         <button id="rData" aria-pressed="true"></button><button id="rYear" aria-pressed="false"></button>
       </div>
-      <div class="grow"></div>
-      <div class="tools" id="tools"></div>
     </div>
-    <div class="scroll" id="mainScroll"><div id="w2d" hidden><svg id="grid2d"></svg></div><canvas id="cv3"></canvas></div>
+    <div class="chartbox"><div class="kpiOver" id="kpiOver" hidden></div><div class="scroll" id="mainScroll"><div id="w2d" hidden><svg id="grid2d"></svg></div><canvas id="cv3"></canvas></div></div>
     <div class="scale" id="scale"></div>
   </section>
 
@@ -288,8 +296,9 @@ function renderHead(){
   ].map(([b,s,t])=>`<div class="kpi"><b>${b}</b><span>${s}</span><span class="sub">${t}</span></div>`).join("");
   const sum=Object.values(perTool).reduce((a,b)=>a+b,0)||1;
   $("share").innerHTML=TOOLS.filter(t=>on.has(t.k)).map(t=>`<i style="width:${perTool[t.k]/sum*100}%;background:var(--c-${t.k})" title="${t.n}"></i>`).join("");
-  $("shareLegend").innerHTML=TOOLS.filter(t=>on.has(t.k)&&perTool[t.k]>0).sort((a,b)=>perTool[b.k]-perTool[a.k])
-    .map(t=>`<span><i style="background:var(--c-${t.k})"></i>${t.n} <b class="num" style="color:var(--ink);font-weight:500">${(perTool[t.k]/sum*100).toFixed(1)}%</b> <span class="num">${fmt(perTool[t.k])}</span></span>`).join("");
+  $("shareLegend").innerHTML=TOOLS.map(t=>{const o=on.has(t.k);
+    return `<button class="tool" data-k="${t.k}" aria-pressed="${o}" title="${L.rowTip(t.n)}"><i style="background:var(--c-${t.k})"></i>${t.n}`+
+      (o?` <b class="num">${(perTool[t.k]/sum*100).toFixed(1)}%</b> <span class="num">${fmt(perTool[t.k])}</span>`:"")+`</button>`}).join("");
 }
 
 // ---------- 平面网格（SVG） ----------
@@ -334,15 +343,22 @@ let hexes=[];
 function draw3D(dates){
   const cv=$("cv3"), box=$("mainScroll");
   const weeks=Math.ceil(dates.length/7);
-  const az=(weeks>30?21:30)*Math.PI/180, el=36*Math.PI/180;   // 周数少时转大一点角度，免得太扁
+  const az=(weeks>30?20:24)*Math.PI/180, el=32*Math.PI/180;   // 视角偏平：同样高度下格子更大
   const uxW=Math.cos(az), uyW=Math.sin(az)*Math.sin(el), uxD=-Math.sin(az), uyD=Math.cos(az)*Math.sin(el);
-  const W=Math.max(640,box.clientWidth), padL=40, padR=72;
-  const step=Math.min(34,(W-padL-padR)/(weeks*uxW+7*Math.abs(uxD)));
+  const ov=$("kpiOver"), W=Math.max(640,box.clientWidth), padL=ov.hidden?40:Math.min(ov.offsetWidth*.75,W*.26), padR=72;   // 指标浮在左上角时，图往右让
+  let step=Math.min(34,(W-padL-padR)/(weeks*uxW+7*Math.abs(uxD)));
+  // 一屏放下：格子和柱高一起缩，直到整张图塞进"图顶到窗口底"的剩余高度
+  const top=box.getBoundingClientRect().top+scrollY;
+  const budget=Math.max(300,innerHeight-top-48);
+  const mhOf=s=>Math.min(200,Math.max(80,s*5));
+  const need=s=>(weeks*uyW+7*uyD)*s+mhOf(s)+plDepth+60;
+  const plDepth=6;
+  while(step>6&&need(step)>budget)step*=.94;
   const span=step*(weeks*uxW+7*Math.abs(uxD));
-  const cR=.8, plD=6, pad=.35;
+  const cR=.8, plD=plDepth, pad=.35;
   const vals=dates.map(d=>dayParts(ymd(d),S.on).reduce((s,p)=>s+p[1],0));
   const maxV=Math.max(...vals,0);
-  const maxH=Math.min(200,Math.max(130,step*7));
+  const maxH=mhOf(step);
   const hOf=v=>v>0&&maxV>0?Math.max(3.5,v/maxV*maxH):0;             // 柱高 = 真实比例
   const ox=(W-span)/2+7*Math.abs(uxD)*step+ (padL-padR)/2;
   const rawY=(w,d,z)=>w*uyW*step+d*uyD*step-z;
@@ -410,7 +426,13 @@ function renderRows(dates){
 }
 
 // ---------- 渲染 ----------
+function placeLayout(){
+  const wide=S.view==="3d"&&innerWidth>=980;
+  if(wide){ $("heroR").append($("share"),$("shareLegend")); $("kpiOver").append($("kpis")); $("kpiOver").hidden=false }
+  else { $("heroR").append($("kpis")); $("head").append($("share"),$("shareLegend")); $("kpiOver").hidden=true }
+}
 function render(){
+  placeLayout();
   readColors();
   const dates=rangeDates();
   renderHead();
@@ -461,14 +483,11 @@ seg(["v3d","v2d"],"view",["3d","2d"]);
 seg(["mTotal","mNoCache","mCost"],"metric",["total","nocache","cost"]);
 seg(["rData","rYear"],"range",["data","year"]);
 $("v3d").setAttribute("aria-pressed",S.view==="3d");$("v2d").setAttribute("aria-pressed",S.view==="2d");
-$("tools").innerHTML=TOOLS.map(t=>`<button class="tool" data-k="${t.k}" aria-pressed="true"><i style="background:var(--c-${t.k})"></i>${t.n}</button>`).join("");
-function toggle(k){if(S.on.has(k)){if(S.on.size===1)return;S.on.delete(k)}else S.on.add(k);
-  document.querySelectorAll(".tool").forEach(x=>x.setAttribute("aria-pressed",S.on.has(x.dataset.k)));render()}
-$("tools").addEventListener("click",e=>{const b=e.target.closest(".tool");if(b)toggle(b.dataset.k)});
+function toggle(k){if(S.on.has(k)){if(S.on.size===1)return;S.on.delete(k)}else S.on.add(k);render()}
+$("shareLegend").addEventListener("click",e=>{const b=e.target.closest(".tool");if(b)toggle(b.dataset.k)});
 $("rows").addEventListener("click",e=>{const r=e.target.closest(".row");if(r)toggle(r.dataset.k)});
 // 双击某家 = 只看它
-$("tools").addEventListener("dblclick",e=>{const b=e.target.closest(".tool");if(!b)return;S.on=new Set([b.dataset.k]);
-  document.querySelectorAll(".tool").forEach(x=>x.setAttribute("aria-pressed",S.on.has(x.dataset.k)));render()});
+$("shareLegend").addEventListener("dblclick",e=>{const b=e.target.closest(".tool");if(!b)return;S.on=new Set([b.dataset.k]);render()});
 
 const g=new Date(D.generatedAt);
 $("brand").textContent=L.brand;
