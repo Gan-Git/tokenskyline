@@ -36,7 +36,7 @@ h1,h2{font-family:var(--f-display);font-weight:700;margin:0;text-wrap:balance}
 .heroR{flex:1 1 420px;min-width:0;display:grid;gap:10px;align-content:end}
 .heroR .legend{margin-inline:-9px}
 .chartbox{display:grid;grid-template-columns:minmax(0,1fr)}
-.chartbox.side{grid-template-columns:minmax(250px,290px) minmax(0,1fr);gap:24px;align-items:center}
+.chartbox.side{grid-template-columns:minmax(240px,270px) minmax(0,1fr);gap:8px;align-items:center}
 .kpiOver .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px}
 .kpiOver .kpi b{font-size:18px}
 .kpiOver .kpi .sub{font-size:10.5px}
@@ -76,7 +76,8 @@ button:focus-visible{outline:2px solid var(--hl);outline-offset:1px}
 /* 主图 */
 .main{display:grid;gap:10px}
 .scroll{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
-#cv3{display:block}
+#cv3{display:block;cursor:grab;touch-action:pan-y}
+#cv3:active{cursor:grabbing}
 .scale{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);justify-content:flex-end}
 .scale i{width:11px;height:11px;display:inline-block}
 .note{font-size:12px;color:var(--muted)}
@@ -169,7 +170,7 @@ const L=ZH?{
   gView:"视图", gMetric:"口径", gRange:"时间范围",
   usd:"估算美元", none:"未选", estCost:"按官方价估算", perDay:"日均", cacheShare:"缓存读占", allTok:"全部 token",
   days:n=>n+" 天", activeDays:"有用量的日子", since:d=>d+" 起有记录", streak:"最长连续", peak:"最猛一天", led:n=>n+"主导",
-  scale2d:"格内分段 = 各家当天占比 · 深浅按分位五档", cuts:"分界", scale3d:"柱高 = 当天真实用量 · 柱内分段 = 各家当天占比",
+  scale2d:"格内分段 = 各家当天占比 · 深浅按分位五档", cuts:"分界", scale3d:"拖动旋转 · 双击复位 · 柱高 = 当天真实用量 · 柱内分段 = 各家当天占比",
   rowTip:n=>"点击：在图 1 里加上或去掉 "+n, more:n=>"+"+n+" 家", from:d=>d+" 起", main:"主力", total:"合计", noRec:"没有记录",
   wd:["一","","三","","五","","日"], weekStart:1,
   foot:(cover,gap)=>`
@@ -184,7 +185,7 @@ const L=ZH?{
   gView:"View", gMetric:"Measure", gRange:"Range",
   usd:"est. USD", none:"none", estCost:"at list prices", perDay:"per day", cacheShare:"cache reads", allTok:"all tokens",
   days:n=>n+(n===1?" day":" days"), activeDays:"active days", since:d=>"since "+d, streak:"longest streak", peak:"busiest day", led:n=>"mostly "+n,
-  scale2d:"cell split = each tool's share that day · shade = quintile", cuts:"cuts", scale3d:"bar height = real usage that day · segments = each tool's share",
+  scale2d:"cell split = each tool's share that day · shade = quintile", cuts:"cuts", scale3d:"drag to rotate · double-click to reset · bar height = real usage that day · segments = each tool's share",
   rowTip:n=>"Click to add or remove "+n+" in fig. 1", more:n=>"+"+n+" more", from:d=>"since "+d, main:"top model", total:"Total", noRec:"no usage",
   wd:["","Mon","","Wed","","Fri",""], weekStart:0,
   foot:(cover,gap)=>`
@@ -344,25 +345,34 @@ function gridSVG(svg,dates,set,opt){
 }
 
 // ---------- 立体（canvas 平行轴测） ----------
-let hexes=[];
+let hexes=[], lastAng={a:20,e:32};
 function draw3D(dates){
   const cv=$("cv3"), box=$("mainScroll");
   const weeks=Math.ceil(dates.length/7);
-  const az=(weeks>30?20:24)*Math.PI/180, el=32*Math.PI/180;   // 视角偏平：同样高度下格子更大
-  const uxW=Math.cos(az), uyW=Math.sin(az)*Math.sin(el), uxD=-Math.sin(az), uyD=Math.cos(az)*Math.sin(el);
-  const W=Math.max(480,box.clientWidth), padL=40, padR=72;
-  let step=(W-padL-padR)/(weeks*uxW+7*Math.abs(uxD));
-  // 一屏放下：格子和柱高一起缩，直到整张图塞进"图顶到窗口底"的剩余高度
+  const W=Math.max(480,box.clientWidth), padL=40, padR=72, plDepth=6;
+  // 一屏放下：图顶到窗口底剩多高，整张图就只能多高
   const top=box.getBoundingClientRect().top+scrollY;
   const budget=Math.max(220,innerHeight-top-62);
-  const mhCap=Math.max(200,budget*.45);                       // 大屏上柱子也能长高
-  step=Math.min(step,Math.max(34,budget/11));
-  const mhOf=s=>Math.min(mhCap,Math.max(80,s*5));
-  const need=s=>(weeks*uyW+7*uyD)*s+mhOf(s)+plDepth+60;
-  const plDepth=6;
-  while(step>6&&need(step)>budget)step*=.94;
+  const mhCap=Math.max(200,budget*.5);
+  // 视角不写死：在一组好看的角度里挑格子最大的那个——周数少就转平、横着铺满宽度
+  // 拖动旋转时用拖到的角度；否则自动挑。俯视角下限抬到 28°，前排高柱少挡后排
+  const As=S.rot?[S.rot.a]:[12,14,16,18,20,22,24,26,28,30], Es=S.rot?[S.rot.e]:[28,30,32,34,36,38,40];
+  let best=null;
+  for(const k of [5.5,4.75,4])for(const a of As)for(const e of Es){
+    const mh=s=>Math.min(mhCap,Math.max(70,s*k));
+    const az_=a*Math.PI/180, el_=e*Math.PI/180;
+    const wSpan=weeks*Math.cos(az_)+7*Math.sin(az_), depth=weeks*Math.sin(az_)*Math.sin(el_)+7*Math.cos(az_)*Math.sin(el_);
+    let s=(W-padL-padR)/wSpan;
+    while(s>6&&depth*s+mh(s)+plDepth+60>budget)s*=.97;
+    const score=s*(1-Math.abs(e-32)*.004)*(1-(5.5-k)*.05);   // 同样大小时偏向 32° 俯视、柱子更高
+    if(!best||score>best.score)best={score,s,az_,el_,k};
+  }
+  const az=best.az_, el=best.el_; lastAng={a:az*180/Math.PI,e:el*180/Math.PI};
+  const uxW=Math.cos(az), uyW=Math.sin(az)*Math.sin(el), uxD=-Math.sin(az), uyD=Math.cos(az)*Math.sin(el);
+  let step=best.s;
+  const mhOf=s=>Math.min(mhCap,Math.max(70,s*best.k));
   const span=step*(weeks*uxW+7*Math.abs(uxD));
-  const cR=.8, plD=plDepth, pad=.35;
+  const cR=.72, plD=plDepth, pad=.35;   // 柱子占格子 72%，留缝能看到后排
   const vals=dates.map(d=>dayParts(ymd(d),S.on).reduce((s,p)=>s+p[1],0));
   const maxV=Math.max(...vals,0);
   const maxH=mhOf(step);
@@ -482,8 +492,21 @@ document.addEventListener("pointermove",e=>{
   if(el&&el.closest("svg"))ds=el.getAttribute("data-d");
   else if(e.target.id==="cv3"){const r=e.target.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
     for(let i=hexes.length-1;i>=0;i--){if(inPoly(x,y,hexes[i].pts)){ds=hexes[i].ds;break}}}
+  if(drag&&drag.moved)return;
   if(ds)showTip(ds,e);else tip.style.display="none";
 });
+
+// ---------- 拖动旋转（双击复位） ----------
+let drag=null, raf=0;
+const cv3=$("cv3");
+cv3.addEventListener("pointerdown",e=>{drag={x:e.clientX,y:e.clientY,a:lastAng.a,e:lastAng.e,moved:false};cv3.setPointerCapture(e.pointerId)});
+cv3.addEventListener("pointermove",e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+  if(Math.abs(dx)+Math.abs(dy)>3)drag.moved=true; if(!drag.moved)return;
+  S.rot={a:Math.min(70,Math.max(6,drag.a-dx*.25)),e:Math.min(70,Math.max(15,drag.e+dy*.25))};
+  tip.style.display="none"; cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>draw3D(rangeDates()))});
+const endDrag=()=>{drag=null};
+cv3.addEventListener("pointerup",endDrag);cv3.addEventListener("pointercancel",endDrag);
+cv3.addEventListener("dblclick",()=>{S.rot=null;render()});
 
 // ---------- 文案 + 控件 ----------
 ["h1","fig1","h2","h2note","v3d","v2d","mTotal","mNoCache","mCost","rData","rYear"].forEach(id=>$(id).textContent=L[id]);

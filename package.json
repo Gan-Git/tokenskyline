@@ -1,6 +1,6 @@
 {
   "name": "tokenskyline",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Your year of AI coding as a 3D token skyline. One command reads local logs of Claude Code, Codex, Gemini/Antigravity, Hermes, Cursor, OpenCode and 60+ tools and writes a single HTML file: GitHub-style contribution graph, flat or 3D.",
   "type": "module",
   "bin": {

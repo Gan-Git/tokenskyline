@@ -20,7 +20,7 @@ Reads local logs from Claude Code, Codex, Gemini CLI / Antigravity, Hermes Agent
 
 - **All tools stacked in one grid**: each day's cell is split by how much each tool used that day.
 - **Each tool on its own row**, on the same timeline, so you can see when you switched tools.
-- **3D skyline or flat grid**: isometric bars on a plinth, height = real usage. Opens in 3D; add `#flat` to the URL for the grid.
+- **3D skyline or flat grid**: bars on a plinth, height = real usage. The view angle is picked to make the chart as large as your screen allows; drag to rotate and look behind tall bars, double-click to reset. Add `#flat` to the URL for the grid, where nothing hides anything.
 - **Three measures**: total tokens, tokens without cache reads (cache reads are often 90%+ of the total), estimated cost in USD.
 - **A local ledger** at `~/.tokenskyline/ledger.json`: every run saves each day's totals, so days stay counted after the tools delete their logs.
 - **One file, about 50 KB**. Send it to anyone, open it on a phone.
