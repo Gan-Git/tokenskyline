@@ -26,13 +26,13 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1
 .eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}
 .cmd{margin-left:auto;font-family:var(--f-mono);font-size:12px;letter-spacing:0;text-transform:none;color:var(--ink);border:1px solid var(--ink);padding:1px 7px}
 .demo{color:var(--bg);background:var(--c-claude,#C0522B);padding:0 6px;letter-spacing:.04em}
-.cmd::before{content:"$ ";color:var(--muted)}
+.cmd::before{content:"$\00a0";color:var(--muted)}   /* 不换行空格：按钮是弹性排版，普通空格会被吞掉 */
 .cmd.copy{font:inherit;font-family:var(--f-mono);background:none;cursor:copy;position:relative}
 .toplinks{margin-left:auto;display:inline-flex;align-items:stretch;gap:8px;align-self:center}
 .toplinks>a{display:inline-flex;align-items:center;gap:6px;height:24px;box-sizing:border-box;padding:0 9px;margin:0;line-height:1;font-family:var(--f-mono);font-size:12px;letter-spacing:0;text-transform:none;color:var(--ink);border:1px solid var(--ink);text-decoration:none}
 .toplinks svg{display:block}
 .gh:hover{border-color:var(--ink);background:var(--ink);color:var(--bg)}
-.cmd.copy::after{content:" ⧉";color:var(--muted)}
+.cmd.copy::after{content:"\00a0⧉";color:var(--muted)}
 .cmd.copy:hover{background:var(--ink);color:var(--bg)}
 .cmd.copy:hover::before,.cmd.copy:hover::after{color:var(--bg)}
 .toplinks>button{display:inline-flex;align-items:center;height:24px;box-sizing:border-box;padding:0 9px;margin:0;line-height:1;font-size:12px;color:var(--ink);border:1px solid var(--ink)}
