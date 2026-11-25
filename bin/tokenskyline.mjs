@@ -65,6 +65,20 @@ const fmt = n => ZH
   ? (n >= 1e8 ? (n / 1e8).toFixed(1) + " 亿" : n >= 1e4 ? Math.round(n / 1e4) + " 万" : String(n))
   : (n >= 1e9 ? (n / 1e9).toFixed(2) + "B" : n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e3 ? Math.round(n / 1e3) + "K" : String(n));
 
+// ---------- 0. agents that keep their logs outside tokscale's default folders ----------
+// Open Mirror runs the Pi coding agent but stores its sessions under its own app folder.
+const EXTRA = [
+  { client: "pi", dir: path.join(os.homedir(), ".open-mirror", "userdata", "agent", "sessions"), name: "Open Mirror" },
+];
+const hasJsonl = d => { try { return fs.readdirSync(d, { recursive: true }).some(f => String(f).endsWith(".jsonl")); } catch { return false; } };
+const extraFound = EXTRA.filter(e => hasJsonl(e.dir));
+const extraNames = {};
+for (const e of extraFound) {
+  // only rename the client when the standard location has nothing of its own
+  const std = path.join(os.homedir(), "." + e.client, "agent", "sessions");
+  extraNames[e.client] = hasJsonl(std) ? `${e.client[0].toUpperCase() + e.client.slice(1)} + ${e.name}` : e.name;
+}
+
 // ---------- build days ----------
 let days;
 if (opt.demo) {
@@ -83,6 +97,7 @@ const totals = {};
 for (const out of Object.values(days)) for (const [k, a] of Object.entries(out)) totals[k] = (totals[k] || 0) + a[0] + a[1] + a[2] + a[3];
 const payload = {
   generatedAt: new Date().toISOString(), year: opt.year, demo: opt.demo || undefined,
+  names: opt.demo || !Object.keys(extraNames).length ? undefined : extraNames,
   tools: Object.keys(totals).sort((a, b) => totals[b] - totals[a]),
   fields: ["input", "output", "cacheRead", "cacheWrite", "costUSD", "messages", "topModel"], days,
 };
@@ -98,7 +113,7 @@ fs.writeFileSync(outFile, html);
 const tot = Object.values(totals).reduce((a, b) => a + b, 0);
 log(t(`\n${opt.year} 年合计 ${fmt(tot)} token，${Object.keys(days).length} 天，${payload.tools.length} 个来源`,
       `\n${opt.year}: ${fmt(tot)} tokens over ${Object.keys(days).length} days from ${payload.tools.length} sources`));
-for (const k of payload.tools) log(`  ${k.padEnd(14)} ${fmt(totals[k]).padStart(9)}  ${(totals[k] / tot * 100).toFixed(1)}%`);
+for (const k of payload.tools) log(`  ${((payload.names && payload.names[k]) || k).padEnd(14)} ${fmt(totals[k]).padStart(9)}  ${(totals[k] / tot * 100).toFixed(1)}%`);
 log(t(`\n已生成 ${outFile}`, `\nWrote ${outFile}`));
 
 if (opt.open) {
@@ -117,7 +132,13 @@ function scan() {
   if (opt.clients) args.push("--client", opt.clients);
   log(t("正在扫描本机日志（首次运行会下载 tokscale，稍等）…", "Scanning local logs (first run downloads tokscale)…"));
   // On Windows npx is npx.cmd and must go through the shell
-  const r = spawnSync(IS_WIN ? "npx.cmd" : "npx", args, { stdio: ["ignore", "ignore", "inherit"], shell: IS_WIN });
+  const env = { ...process.env };
+  if (extraFound.length) {
+    const add = extraFound.map(e => `${e.client}:${e.dir}`).join(",");
+    env.TOKSCALE_EXTRA_DIRS = env.TOKSCALE_EXTRA_DIRS ? `${env.TOKSCALE_EXTRA_DIRS},${add}` : add;
+    log(t(`另外读取：${extraFound.map(e => e.name).join("、")}`, `Also reading: ${extraFound.map(e => e.name).join(", ")}`));
+  }
+  const r = spawnSync(IS_WIN ? "npx.cmd" : "npx", args, { stdio: ["ignore", "ignore", "inherit"], shell: IS_WIN, env });
   if (r.status !== 0 || !fs.existsSync(tmp)) {
     log(t("tokscale 运行失败。需要 Node 18+ 并能访问 npm；也可以先跑 `npx tokscale graph --output x.json` 再用 --from x.json。",
           "tokscale failed. Needs Node 18+ and npm access; or run `npx tokscale graph --output x.json` and pass --from x.json."));

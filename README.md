@@ -6,7 +6,7 @@
 npx tokenskyline
 ```
 
-Reads local logs from Claude Code, Codex, Gemini CLI / Antigravity, Hermes Agent, Cursor, OpenCode, WorkBuddy, CodeBuddy and 60+ other AI coding tools, then opens `tokenskyline-2026.html` in your browser. Nothing is uploaded. Works on macOS, Linux and Windows (Node 18+).
+Reads local logs from Claude Code, Codex, Gemini CLI / Antigravity, Hermes Agent, Cursor, OpenCode, WorkBuddy, CodeBuddy, Open Mirror and 60+ other AI coding tools, then opens `tokenskyline-2026.html` in your browser. Nothing is uploaded. Works on macOS, Linux and Windows (Node 18+).
 
 [中文说明](#中文)
 
@@ -71,7 +71,7 @@ tokenskyline does not parse logs itself; [tokscale](https://github.com/junhoyeo/
 npx tokenskyline
 ```
 
-- 支持 Claude Code、Codex、Gemini CLI / Antigravity、Hermes、Cursor、OpenCode、WorkBuddy、CodeBuddy 等 60 多种工具，自动识别本机装了哪些。
+- 支持 Claude Code、Codex、Gemini CLI / Antigravity、Hermes、Cursor、OpenCode、WorkBuddy、CodeBuddy、Open Mirror 等 60 多种工具，自动识别本机装了哪些。Open Mirror 把它内置的 Pi 助手日志放在自己的目录里，tokscale 默认找不到，这里会自动补上。
 - 数据只在本机，不上传。macOS、Linux、Windows 都能用，需要 Node 18 以上。
 - 每次运行会把每天的数存进 `~/.tokenskyline/ledger.json`。Claude Code 默认 30 天删日志，有了底账，统计过的日子就不会丢。
 - 生成的网页约 50KB，可以直接发给朋友，手机上也能打开。网址末尾加 `#flat` 打开平面格子，加 `#en` / `#zh` 切语言（默认跟浏览器语言）。
