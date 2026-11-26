@@ -349,7 +349,7 @@ function gridSVG(svg,dates,set,opt){
     // 有用量：格子按各家占比自下而上分段着色，整体深浅按分位档
     const t=LV[Lv]; let yy=y+cell;
     h+=`<g data-d="${ds}">`;
-    parts.sort((a,b)=>TOOLS.findIndex(t=>t.k===a[0])-TOOLS.findIndex(t=>t.k===b[0]));
+    parts.sort((a,b)=>b[1]-a[1]);   // 当天用得最多的垫底，越往上越小
     parts.forEach(([k,pv])=>{const hh=cell*pv/v;yy-=hh;h+=`<rect x="${x}" y="${yy.toFixed(2)}" width="${cell}" height="${(hh+.3).toFixed(2)}" fill="${mix(C[k],C.empty,t)}"/>`});
     h+=`</g>`;
   });
@@ -421,7 +421,7 @@ function draw3D(dates){
     const d=dates[i],w=Math.floor(i/7),r=i%7,ds=ymd(d),Ht=hOf(vals[i]);
     const p00=P(w,r,0),p10=P(w+cR,r,0),p11=P(w+cR,r+cR,0),p01=P(w,r+cR,0);
     if(!Ht){ if(d>today)poly(g,[p00,p10,p11,p01],null,C.rule); else poly(g,[p00,p10,p11,p01],C.empty,null); hexes.push({ds,pts:[p00,p10,p11,p01]}); continue }
-    const parts=dayParts(ds,S.on).sort((x,y)=>TOOLS.findIndex(t=>t.k===x[0])-TOOLS.findIndex(t=>t.k===y[0]));
+    const parts=dayParts(ds,S.on).sort((x,y)=>y[1]-x[1]);   // 当天用得最多的垫底，越往上越小
     let z=0;const up=(p,zz)=>[p[0],p[1]-zz];
     for(const [tk,pv] of parts){const z1=z+Ht*pv/vals[i],col=C[tk];
       poly(g,[up(p01,z1),up(p11,z1),up(p11,z),up(p01,z)],shade(col,.8));
